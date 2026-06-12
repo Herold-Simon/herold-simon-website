@@ -131,13 +131,21 @@ section[id] { scroll-margin-top: var(--header-height); }
 }
 
 /* ---------- Hero ---------- */
-.hero { background: var(--blue-light); padding-bottom: 2.6rem; }
+/* Slider + Textbalken füllen zusammen genau die Bildschirmhöhe,
+   sodass der Balken mit dem unteren Bildschirmrand abschließt. */
+.hero {
+  background: var(--blue-light);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height));
+  min-height: 480px;
+}
 
 .hero-slider {
   position: relative;
   width: 100%;
-  height: min(62vh, 560px);
-  min-height: 300px;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -177,7 +185,7 @@ section[id] { scroll-margin-top: var(--header-height); }
 
 .slider-dots button.active { background: var(--blue); }
 
-.hero-text { text-align: center; padding-top: 2.2rem; }
+.hero-text { text-align: center; padding: 2.2rem 0 2.6rem; }
 
 .hero-text .hero-sub {
   font-size: clamp(1.5rem, 3.4vw, 2.4rem);
@@ -671,7 +679,12 @@ section[id] { scroll-margin-top: var(--header-height); }
 
   .footer-inner { flex-direction: column; text-align: center; }
 
-  .hero-slider { height: 44vh; }
+  /* Auf dem Handy: Balken beginnt direkt unter dem Bild */
+  .hero { height: auto; min-height: 0; }
+
+  .hero-slider { flex: none; height: 44vh; min-height: 260px; }
+
+  .hero-text { padding: 1.6rem 0 2rem; }
 
   .logo-link img { height: 48px; }
 }
