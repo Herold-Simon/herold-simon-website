@@ -4,10 +4,14 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ---------- Mobile Navigation (Hamburger) ---------- */
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");
+  var header = document.querySelector(".site-header");
   if (toggle && nav) {
     toggle.addEventListener("click", function () {
       nav.classList.toggle("open");
       toggle.classList.toggle("open");
+      if (nav.classList.contains("open") && header) {
+        header.classList.add("header-shown");
+      }
     });
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
@@ -15,6 +19,49 @@ document.addEventListener("DOMContentLoaded", function () {
         toggle.classList.remove("open");
       });
     });
+  }
+
+  /* ---------- Header beim Scrollen ein-/ausblenden ---------- */
+  if (header) {
+    var lastScrollY = window.scrollY;
+    var scrollTicking = false;
+
+    function isMobileNav() {
+      return window.matchMedia("(max-width: 860px)").matches;
+    }
+
+    function updateHeaderVisibility() {
+      var currentScrollY = window.scrollY;
+      var navOpen = nav && nav.classList.contains("open");
+
+      if (navOpen) {
+        header.classList.add("header-shown");
+      } else if (currentScrollY <= 10) {
+        if (isMobileNav()) {
+          header.classList.add("header-shown");
+        } else {
+          header.classList.remove("header-shown");
+        }
+      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        header.classList.remove("header-shown");
+      } else if (currentScrollY < lastScrollY) {
+        header.classList.add("header-shown");
+      }
+
+      lastScrollY = currentScrollY;
+      scrollTicking = false;
+    }
+
+    updateHeaderVisibility();
+
+    window.addEventListener("scroll", function () {
+      if (!scrollTicking) {
+        window.requestAnimationFrame(updateHeaderVisibility);
+        scrollTicking = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener("resize", updateHeaderVisibility);
   }
 
   /* ---------- Hero-Slider ---------- */

@@ -84,7 +84,11 @@ section[id] { scroll-margin-top: var(--header-height); }
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-soft);
+  transition: transform 0.3s ease;
+  transform: translateY(-100%);
 }
+
+.site-header.header-shown { transform: translateY(0); }
 
 .header-inner {
   display: flex;
@@ -137,7 +141,8 @@ section[id] { scroll-margin-top: var(--header-height); }
   background: var(--blue-light);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
+  height: 100vh;
   min-height: 480px;
 }
 
@@ -680,7 +685,7 @@ section[id] { scroll-margin-top: var(--header-height); }
   .footer-inner { flex-direction: column; text-align: center; }
 
   /* Auf dem Handy: Balken beginnt direkt unter dem Bild */
-  .hero { height: auto; min-height: 0; }
+  .hero { height: auto; min-height: 0; margin-top: 0; }
 
   .hero-slider { flex: none; height: 44vh; min-height: 260px; }
 
