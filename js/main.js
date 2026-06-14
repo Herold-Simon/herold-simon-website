@@ -21,34 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /* ---------- Header beim Scrollen ein-/ausblenden ---------- */
+  /* ---------- Header: nur auf Startseite ganz oben ausblenden ---------- */
   if (header) {
-    var lastScrollY = window.scrollY;
     var scrollTicking = false;
-
-    function isMobileNav() {
-      return window.matchMedia("(max-width: 860px)").matches;
-    }
+    var onHomePage = !!document.querySelector(".hero");
 
     function updateHeaderVisibility() {
-      var currentScrollY = window.scrollY;
       var navOpen = nav && nav.classList.contains("open");
+      var atTop = window.scrollY <= 10;
 
-      if (navOpen) {
+      if (navOpen || !onHomePage || !atTop) {
         header.classList.add("header-shown");
-      } else if (currentScrollY <= 10) {
-        if (isMobileNav()) {
-          header.classList.add("header-shown");
-        } else {
-          header.classList.remove("header-shown");
-        }
-      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
+      } else {
         header.classList.remove("header-shown");
-      } else if (currentScrollY < lastScrollY) {
-        header.classList.add("header-shown");
       }
 
-      lastScrollY = currentScrollY;
       scrollTicking = false;
     }
 
