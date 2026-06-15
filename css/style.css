@@ -84,11 +84,7 @@ section[id] { scroll-margin-top: var(--header-height); }
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-soft);
-  transition: transform 0.3s ease;
-  transform: translateY(-100%);
 }
-
-.site-header.header-shown { transform: translateY(0); }
 
 .header-inner {
   display: flex;
@@ -101,6 +97,18 @@ section[id] { scroll-margin-top: var(--header-height); }
 .logo-link { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
 
 .logo-link img { height: 58px; width: auto; }
+
+/* Kontakt-Schnellbutton (nur mobil sichtbar) */
+.header-contact-mobile {
+  display: none;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--white);
+  background: var(--blue);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+}
 
 .main-nav { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
 
@@ -173,8 +181,7 @@ section[id] { scroll-margin-top: var(--header-height); }
   background: var(--blue-light);
   display: flex;
   flex-direction: column;
-  margin-top: calc(-1 * var(--header-height));
-  height: 100vh;
+  height: calc(100vh - var(--header-height));
   min-height: 480px;
 }
 
@@ -275,10 +282,17 @@ section[id] { scroll-margin-top: var(--header-height); }
 
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 1.6rem;
   margin-top: 2rem;
 }
+
+/* Erste Zeile: Tilman, Isa, Alina (je 2 Spalten) */
+.team-grid .member-card { grid-column: span 2; }
+
+/* Zweite Zeile: Billy und Ilka zentriert */
+.team-grid .member-card:nth-child(4) { grid-column: 2 / span 2; }
+.team-grid .member-card:nth-child(5) { grid-column: 4 / span 2; }
 
 .member-card {
   background: var(--white);
@@ -288,10 +302,15 @@ section[id] { scroll-margin-top: var(--header-height); }
   text-align: center;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.member-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.member-card:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: var(--shadow);
+  border-color: var(--blue);
+}
 
 .member-card img {
   width: 100%;
@@ -355,6 +374,16 @@ section[id] { scroll-margin-top: var(--header-height); }
 .contact-head { text-align: center; margin-bottom: 2rem; }
 
 .contact-head p { font-size: 1.1rem; }
+
+.contact-head .contact-appointment {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--blue-dark);
+  margin-top: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.contact-head .btn { margin-bottom: 2rem; }
 
 .contact-block {
   display: grid;
@@ -684,7 +713,16 @@ section[id] { scroll-margin-top: var(--header-height); }
 @media (max-width: 860px) {
   :root { --header-height: 4rem; }
 
+  /* Team: 2 pro Zeile, letzte Karte zentriert */
+  .team-grid { grid-template-columns: repeat(4, 1fr); }
+  .team-grid .member-card,
+  .team-grid .member-card:nth-child(4),
+  .team-grid .member-card:nth-child(5) { grid-column: span 2; }
+  .team-grid .member-card:nth-child(5) { grid-column: 2 / span 2; }
+
   .nav-toggle { display: block; }
+
+  .header-contact-mobile { display: inline-flex; align-items: center; margin-left: auto; }
 
   .site-header { position: fixed; }
 
@@ -740,9 +778,24 @@ section[id] { scroll-margin-top: var(--header-height); }
   /* Auf dem Handy: Balken beginnt direkt unter dem Bild */
   .hero { height: auto; min-height: 0; }
 
-  .hero-slider { flex: none; height: 44vh; min-height: 260px; }
+  /* Bild in voller Breite zeigen, ohne hineinzuzoomen */
+  .hero-slider {
+    flex: none;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 3000 / 1818;
+  }
+
+  .hero-slider .slide img { object-fit: contain; object-position: center; }
 
   .hero-text { padding: 1.6rem 0 2rem; }
 
   .logo-link img { height: 48px; }
+}
+
+@media (max-width: 560px) {
+  .team-grid { grid-template-columns: 1fr; }
+  .team-grid .member-card,
+  .team-grid .member-card:nth-child(4),
+  .team-grid .member-card:nth-child(5) { grid-column: 1 / -1; }
 }

@@ -9,9 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     toggle.addEventListener("click", function () {
       nav.classList.toggle("open");
       toggle.classList.toggle("open");
-      if (nav.classList.contains("open") && header) {
-        header.classList.add("header-shown");
-      }
     });
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
@@ -21,35 +18,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /* ---------- Header: nur auf Startseite ganz oben ausblenden ---------- */
-  if (header) {
-    var scrollTicking = false;
-    var onHomePage = !!document.querySelector(".hero");
-
-    function updateHeaderVisibility() {
-      var navOpen = nav && nav.classList.contains("open");
-      var atTop = window.scrollY <= 10;
-
-      if (navOpen || !onHomePage || !atTop) {
-        header.classList.add("header-shown");
-      } else {
-        header.classList.remove("header-shown");
-      }
-
-      scrollTicking = false;
-    }
-
-    updateHeaderVisibility();
-
-    window.addEventListener("scroll", function () {
-      if (!scrollTicking) {
-        window.requestAnimationFrame(updateHeaderVisibility);
-        scrollTicking = true;
-      }
-    }, { passive: true });
-
-    window.addEventListener("resize", updateHeaderVisibility);
-  }
+  /* ---------- Mitarbeiter-Karten klickbar machen ---------- */
+  document.querySelectorAll(".member-card").forEach(function (card) {
+    var link = card.querySelector("a.btn");
+    if (!link) return;
+    card.style.cursor = "pointer";
+    card.addEventListener("click", function (e) {
+      if (e.target.closest("a")) return;
+      window.location.href = link.href;
+    });
+  });
 
   /* ---------- Hero-Slider ---------- */
   var slider = document.querySelector(".hero-slider");
