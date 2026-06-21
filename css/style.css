@@ -280,19 +280,19 @@ section[id] { scroll-margin-top: var(--header-height); }
   max-width: 900px;
 }
 
+/* 3 Mitarbeiter pro Reihe; unvollständige letzte Reihe wird zentriert */
 .team-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.6rem;
   margin-top: 2rem;
 }
 
-/* Erste Zeile: Tilman, Isa, Alina (je 2 Spalten) */
-.team-grid .member-card { grid-column: span 2; }
-
-/* Zweite Zeile: Billy und Ilka zentriert */
-.team-grid .member-card:nth-child(4) { grid-column: 2 / span 2; }
-.team-grid .member-card:nth-child(5) { grid-column: 4 / span 2; }
+.team-grid .member-card {
+  flex: 0 1 calc((100% - 2 * 1.6rem) / 3);
+  max-width: calc((100% - 2 * 1.6rem) / 3);
+}
 
 .member-card {
   background: var(--white);
@@ -721,11 +721,10 @@ section[id] { scroll-margin-top: var(--header-height); }
   :root { --header-height: 4rem; }
 
   /* Team: 2 pro Zeile, letzte Karte zentriert */
-  .team-grid { grid-template-columns: repeat(4, 1fr); }
-  .team-grid .member-card,
-  .team-grid .member-card:nth-child(4),
-  .team-grid .member-card:nth-child(5) { grid-column: span 2; }
-  .team-grid .member-card:nth-child(5) { grid-column: 2 / span 2; }
+  .team-grid .member-card {
+    flex-basis: calc((100% - 1.6rem) / 2);
+    max-width: calc((100% - 1.6rem) / 2);
+  }
 
   .nav-toggle { display: block; }
 
@@ -801,10 +800,10 @@ section[id] { scroll-margin-top: var(--header-height); }
 }
 
 @media (max-width: 560px) {
-  .team-grid { grid-template-columns: 1fr; }
-  .team-grid .member-card,
-  .team-grid .member-card:nth-child(4),
-  .team-grid .member-card:nth-child(5) { grid-column: 1 / -1; }
+  .team-grid .member-card {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
 }
 
 /* ============================================================
