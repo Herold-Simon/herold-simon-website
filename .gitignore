@@ -2,3 +2,9 @@
 Thumbs.db
 desktop.ini
 *.tmp
+
+# Node / Seeding-Werkzeuge (enthalten Zugangsdaten, nicht deployen)
+node_modules/
+scripts/
+package.json
+package-lock.json

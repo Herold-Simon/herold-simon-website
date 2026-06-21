@@ -63,53 +63,7 @@
       <div class="team-photo">
         <img src="Bilder/Mitarbeiter/Team.jpg" alt="Das gesamte Team der Praxis">
       </div>
-      <div class="team-grid">
-        <div class="member-card">
-          <img src="Bilder/Mitarbeiter/Tilman.jpg" alt="Dr. Tilman Simon">
-          <div class="member-info">
-            <span class="member-title">Dr. med. vet. – prakt. Tierarzt, Zahnheilkunde</span>
-            <h3>Dr. Tilman Simon</h3>
-            <span class="member-phone">Mobil: 0178 888 66 51</span>
-            <a class="btn btn-small" href="team-tilman.html">Mehr Infos</a>
-          </div>
-        </div>
-        <div class="member-card">
-          <img src="Bilder/Mitarbeiter/isa.jpg" alt="Dr. Isabell Herold">
-          <div class="member-info">
-            <span class="member-title">Dr. med. vet. – prakt. Tierärztin, Akupunktur</span>
-            <h3>Dr. Isabell Herold</h3>
-            <span class="member-phone">Mobil: 0178 888 66 50</span>
-            <a class="btn btn-small" href="team-isa.html">Mehr Infos</a>
-          </div>
-        </div>
-        <div class="member-card">
-          <img src="Bilder/Mitarbeiter/Alina.jpg" alt="Alina Renner">
-          <div class="member-info">
-            <span class="member-title">Tierärztin</span>
-            <h3>Alina Renner</h3>
-            <span class="member-phone">Telefon: 0176 20612811</span>
-            <a class="btn btn-small" href="team-alina.html">Mehr Infos</a>
-          </div>
-        </div>
-        <div class="member-card">
-          <img src="Bilder/Mitarbeiter/Billy.jpg" alt="Billy">
-          <div class="member-info">
-            <span class="member-title">Tierarzt</span>
-            <h3>Billy Matthes</h3>
-            <span class="member-phone">Telefon: 0176 6284127</span>
-            <a class="btn btn-small" href="team-billy.html">Mehr Infos</a>
-          </div>
-        </div>
-        <div class="member-card">
-          <img src="Bilder/Mitarbeiter/ilka.jpg" alt="Ilka">
-          <div class="member-info">
-            <span class="member-title">Terminvereinbarung, Helferin</span>
-            <h3>Ilka Meidinger</h3>
-            <span class="member-phone">Telefon: 0176 62323514</span>
-            <a class="btn btn-small" href="team-ilka.html">Mehr Infos</a>
-          </div>
-        </div>
-      </div>
+      <div class="team-grid" data-team-grid></div>
     </div>
   </section>
 
@@ -249,6 +203,8 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

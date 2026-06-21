@@ -806,3 +806,373 @@ section[id] { scroll-margin-top: var(--header-height); }
   .team-grid .member-card:nth-child(4),
   .team-grid .member-card:nth-child(5) { grid-column: 1 / -1; }
 }
+
+/* ============================================================
+   Admin-Bereich
+   ============================================================ */
+.btn-danger { background: #c0504d; color: var(--white); }
+.btn-danger:hover { background: #a23f3d; }
+
+/* Header: Navigation auch auf dem Smartphone sichtbar lassen */
+.admin-header .main-nav {
+  display: flex;
+  position: static;
+  flex-direction: row;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  gap: 0.6rem;
+}
+.admin-header .main-nav a {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.92rem;
+}
+
+/* ---------- Login ---------- */
+.admin-login {
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.2rem;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(132, 153, 180, 0.25), transparent 60%),
+    var(--blue-light);
+}
+
+.admin-login-card {
+  width: min(420px, 100%);
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.6rem 2rem 2.2rem;
+  text-align: center;
+}
+
+.admin-login-logo { height: 66px; width: auto; margin: 0 auto 1.1rem; }
+.admin-login-card h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.admin-login-sub { color: var(--grey); margin-bottom: 1.6rem; }
+.admin-login form { display: flex; flex-direction: column; gap: 1.1rem; text-align: left; }
+
+.admin-btn-block { width: 100%; text-align: center; }
+
+/* ---------- Panel ---------- */
+.admin-panel { padding-top: 2.5rem; padding-bottom: 3rem; background: var(--grey-light); min-height: 100vh; }
+.admin-page-head { margin-bottom: 2rem; }
+.admin-page-head h1 { font-size: 2rem; }
+.admin-page-head p { color: var(--grey); margin-top: 0.2rem; }
+
+.admin-block {
+  background: var(--white);
+  border: 1px solid var(--grey-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 1.8rem;
+  margin-bottom: 1.8rem;
+}
+
+.admin-block-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+.admin-block-head h2 { font-size: 1.4rem; }
+.admin-block-sub { color: var(--grey); font-size: 0.95rem; margin-top: 0.25rem; max-width: 60ch; }
+.inline-handle { color: var(--blue); font-weight: 700; }
+
+/* ---------- Formularfelder ---------- */
+.admin-form { display: flex; flex-direction: column; gap: 1.1rem; }
+
+.admin-form label,
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+
+.admin-field-narrow { max-width: 220px; }
+
+.admin-login input[type="password"],
+.admin-form input[type="text"],
+.admin-form input[type="password"],
+.admin-form input[type="number"] {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid var(--grey);
+  border-radius: 10px;
+  font-weight: 400;
+  width: 100%;
+  background: var(--white);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-login input:focus,
+.admin-form input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(132, 153, 180, 0.2);
+}
+
+.admin-form input[type="file"] {
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 400;
+  width: 100%;
+}
+
+.admin-card {
+  background: var(--grey-light);
+  border: 1px solid var(--grey-light);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  margin-top: 1.4rem;
+}
+.admin-card h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+
+.admin-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+
+/* ---------- Mitarbeiter-Liste ---------- */
+.admin-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.2rem; }
+
+.admin-list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--white);
+  border: 1px solid var(--grey-light);
+  border-radius: 12px;
+  padding: 0.6rem 0.9rem;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.admin-list-row:hover { border-color: var(--blue); }
+
+.admin-list-name { flex: 1; font-weight: 700; }
+.admin-list-order { color: var(--grey); font-weight: 700; font-size: 0.85rem; }
+
+.admin-thumb-sm {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.admin-thumb {
+  max-width: 150px;
+  border-radius: 10px;
+}
+
+.admin-image-field { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+/* ---------- Upload-Felder (Galerie + Mitarbeiterbilder) ---------- */
+.admin-upload-form { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+.admin-upload-form .admin-dropzone { width: 100%; }
+
+.admin-field-label { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+
+.admin-dropzone {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.6rem;
+  border: 2px dashed var(--grey);
+  border-radius: var(--radius);
+  background: var(--grey-light);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.admin-dropzone:hover { border-color: var(--blue); background: var(--blue-light); }
+.admin-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.admin-dropzone-sm { padding: 1rem; }
+.admin-dropzone-text { font-weight: 700; color: var(--text); }
+.admin-dropzone-hint { font-size: 0.85rem; color: var(--grey); }
+
+/* ---------- Galerie-Gitter ---------- */
+.admin-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.admin-gallery-cell {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  cursor: grab;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.admin-gallery-cell:hover { box-shadow: var(--shadow); }
+.admin-gallery-cell:active { cursor: grabbing; }
+.admin-gallery-cell.dragging { opacity: 0.4; transform: scale(0.97); }
+.admin-gallery-cell.drag-over { outline: 3px solid var(--blue); outline-offset: -3px; }
+
+.admin-gallery-cell img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-drag-handle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.1rem 0.45rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  user-select: none;
+  pointer-events: none;
+}
+
+.gallery-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(192, 80, 77, 0.92);
+  color: var(--white);
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.gallery-delete:hover { background: #a23f3d; }
+
+.admin-error { color: #c0504d; font-weight: 700; min-height: 1.2em; }
+.admin-success { color: #2e7d32; }
+
+/* ---------- Mitarbeiter Drag & Drop ---------- */
+.drag-handle {
+  cursor: grab;
+  color: var(--grey);
+  font-size: 1.3rem;
+  line-height: 1;
+  user-select: none;
+  padding: 0 0.3rem;
+}
+.drag-handle:active { cursor: grabbing; }
+.admin-list-row.dragging {
+  opacity: 0.6;
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+/* ---------- Toast ---------- */
+.admin-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(160%);
+  background: var(--text);
+  color: var(--white);
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  z-index: 300;
+  transition: transform 0.3s ease;
+  max-width: 90vw;
+}
+.admin-toast.show { transform: translateX(-50%) translateY(0); }
+.admin-toast.error { background: #c0504d; }
+.admin-toast.success { background: #2e7d32; }
+
+/* ---------- Rich-Text-Editor ---------- */
+.cv-editor-wrap { width: 100%; }
+.cv-editor-wrap .ql-toolbar.ql-snow {
+  border-color: var(--grey-light);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background: var(--grey-light);
+}
+.cv-editor-wrap .ql-container.ql-snow {
+  border-color: var(--grey-light);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--white);
+}
+#cv-editor .ql-editor { min-height: 240px; }
+#detail-title-editor .ql-editor { min-height: 70px; }
+
+/* Lebenslauf-Editor einklappbar */
+.cv-editor-wrap.collapsed { position: relative; }
+.cv-editor-wrap.collapsed .ql-container.ql-snow {
+  max-height: 220px;
+  overflow: hidden;
+}
+.cv-editor-wrap.collapsed::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  background: linear-gradient(rgba(255, 255, 255, 0), var(--white));
+  pointer-events: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.cv-toggle {
+  margin-top: 0.6rem;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--blue-dark);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.cv-toggle:hover { color: var(--blue); }
+
+/* Titel-Zeilen auf der Detailseite kompakt halten */
+.cv-header .member-title p { margin: 0; }
+
+@media (max-width: 640px) {
+  .admin-form-grid { grid-template-columns: 1fr; }
+  .admin-block { padding: 1.3rem; }
+  .admin-block-head .btn { width: 100%; }
+
+  .admin-list-row { flex-wrap: wrap; row-gap: 0.6rem; }
+  .admin-list-name { flex: 1 1 auto; }
+  .admin-list-row .btn-small { flex: 1 1 40%; text-align: center; }
+}
