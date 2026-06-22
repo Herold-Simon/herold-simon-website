@@ -68,6 +68,14 @@ document.addEventListener("DOMContentLoaded", function () {
     renderTeam(teamGrid);
   }
 
+  /* ---------- Karten: erst nach Klick interaktiv ---------- */
+  document.querySelectorAll(".contact-map .map-activate").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var map = btn.closest(".contact-map");
+      if (map) map.classList.add("is-active");
+    });
+  });
+
   /* ---------- Galerie aus Supabase laden ---------- */
   var randomGallery = document.querySelector("[data-gallery-random]");
   var fullGallery = document.querySelector("[data-gallery-all]");
