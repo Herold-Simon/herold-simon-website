@@ -142,11 +142,12 @@
     logoutLink.style.display = "none";
   }
 
-  function showAdmin() {
+  async function showAdmin() {
     loginView.style.display = "none";
     adminView.style.display = "";
     logoutLink.style.display = "";
-    loadTeam();
+    await loadTeam();
+    await loadLayout();
     loadGallery();
   }
 
@@ -173,6 +174,8 @@
   /* ---------- Mitarbeiter ---------- */
   var teamListEl = qs("[data-team-list]");
   var memberForm = qs("[data-member-form]");
+  var layoutListEl = qs("[data-layout-list]");
+  var teamLayout = [];
 
   async function loadTeam() {
     var res = await sb.from("team_members").select("*").order("sort_order", { ascending: true });
@@ -386,6 +389,7 @@
       var wasEditing = !!editingMember;
       editingMember = null;
       await loadTeam();
+      await refreshLayout();
       toast(wasEditing ? "Mitarbeiter aktualisiert." : "Mitarbeiter hinzugefügt.", "success");
     } catch (ex) {
       err.textContent = "Fehler beim Speichern: " + (ex.message || ex);
@@ -400,7 +404,102 @@
     var res = await sb.from("team_members").delete().eq("id", m.id);
     if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
     await loadTeam();
+    await refreshLayout();
     toast("Mitarbeiter gelöscht.", "success");
+  }
+
+  /* ---------- Reihen-Aufteilung ---------- */
+  // Layout an die Mitarbeiterzahl angleichen: gespeicherte Reihengrößen
+  // anwenden, letzte Reihe ggf. kürzen, Rest in neue Reihen (Standard 3) füllen.
+  function normalizeLayout(layout, total) {
+    var rows = [];
+    var used = 0;
+    for (var i = 0; i < layout.length && used < total; i++) {
+      var size = parseInt(layout[i], 10) || 0;
+      if (size < 1) size = 1;
+      if (used + size > total) size = total - used;
+      if (size > 0) { rows.push(size); used += size; }
+    }
+    while (used < total) {
+      var rest = Math.min(3, total - used);
+      rows.push(rest);
+      used += rest;
+    }
+    return rows;
+  }
+
+  async function loadLayout() {
+    var res = await sb.from("site_settings").select("value").eq("key", "team_row_layout").maybeSingle();
+    var val = res && res.data && Array.isArray(res.data.value) ? res.data.value : [];
+    teamLayout = val;
+    await refreshLayout();
+  }
+
+  // Normalisiert das Layout, rendert die Eingaben und speichert bei Änderung.
+  async function refreshLayout() {
+    var before = JSON.stringify(teamLayout);
+    teamLayout = normalizeLayout(teamLayout, teamCache.length);
+    renderLayout();
+    if (JSON.stringify(teamLayout) !== before) {
+      await saveLayout(true);
+    }
+  }
+
+  function renderLayout() {
+    if (!layoutListEl) return;
+    layoutListEl.innerHTML = "";
+    var total = teamCache.length;
+    if (total === 0) {
+      layoutListEl.innerHTML = "<p class=\"admin-block-sub\">Noch keine Mitarbeiter vorhanden.</p>";
+      return;
+    }
+
+    teamLayout.forEach(function (count, idx) {
+      var rowEl = document.createElement("div");
+      rowEl.className = "admin-layout-row";
+
+      var label = document.createElement("span");
+      label.className = "admin-layout-label";
+      label.textContent = "Reihe " + (idx + 1);
+      rowEl.appendChild(label);
+
+      var input = document.createElement("input");
+      input.type = "number";
+      input.min = "1";
+      input.max = String(total);
+      input.value = String(count);
+      input.className = "admin-layout-input";
+      input.addEventListener("change", function () {
+        var v = parseInt(input.value, 10) || 1;
+        if (v < 1) v = 1;
+        if (v > total) v = total;
+        teamLayout[idx] = v;
+        // Nachfolgende Reihen verwerfen – Rest wird automatisch neu verteilt.
+        teamLayout = normalizeLayout(teamLayout.slice(0, idx + 1), total);
+        renderLayout();
+        saveLayout(true);
+      });
+      rowEl.appendChild(input);
+
+      var suffix = document.createElement("span");
+      suffix.className = "admin-layout-suffix";
+      suffix.textContent = "Mitarbeiter";
+      rowEl.appendChild(suffix);
+
+      layoutListEl.appendChild(rowEl);
+    });
+  }
+
+  async function saveLayout(showToast) {
+    var res = await sb.from("site_settings").upsert(
+      { key: "team_row_layout", value: teamLayout, updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+    if (res.error) {
+      toast("Reihen-Aufteilung konnte nicht gespeichert werden.", "error");
+    } else if (showToast) {
+      toast("Reihen-Aufteilung gespeichert.", "success");
+    }
   }
 
   /* ---------- Galerie ---------- */
