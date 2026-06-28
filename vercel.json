@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/danke-für-die-spende", "destination": "/Danke-für-die-spende.html" },
-    { "source": "/Danke-für-die-spende", "destination": "/Danke-für-die-spende.html" }
+    { "source": "/danke-f:mid(.*)r-die-spende", "destination": "/danke-fuer-die-spende.html" },
+    { "source": "/Danke-f:mid(.*)r-die-spende", "destination": "/danke-fuer-die-spende.html" }
   ]
 }

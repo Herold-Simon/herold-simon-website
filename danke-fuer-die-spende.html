@@ -147,7 +147,6 @@
         var amt = parseFloat(selected);
         return amt && amt > 0 ? amt : 0;
       }
-      
 
       function renderButtons() {
         paypal.Buttons({
@@ -193,7 +192,7 @@
         document.head.appendChild(s);
       } else {
         container.innerHTML =
-          '<p class="donate-hint">Hinweis für den Administrator: Bitte zuerst die PayPal-Client-ID in der Datei <code>Danke-für-die-spende.html</code> eintragen.</p>';
+          '<p class="donate-hint">Hinweis für den Administrator: Bitte zuerst die PayPal-Client-ID in der Datei <code>danke-fuer-die-spende.html</code> eintragen.</p>';
       }
     })();
   </script>
