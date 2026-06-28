@@ -336,6 +336,103 @@ section[id] { scroll-margin-top: var(--header-height); }
 
 .member-info .btn { margin-top: auto; align-self: center; margin-top: 0.9rem; }
 
+/* ---------- Spendenseite ---------- */
+.donate-wrap { max-width: 640px; }
+.donate-title { text-align: center; font-size: clamp(1.8rem, 3.4vw, 2.4rem); }
+.donate-intro { text-align: center; color: var(--text); margin: 1rem auto 2rem; }
+
+.donate-card {
+  background: var(--white);
+  border: 1px solid var(--grey-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+.donate-label { font-weight: 800; margin-bottom: 0.9rem; }
+
+.donate-amounts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+  margin-bottom: 1.4rem;
+}
+
+.donate-amount {
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--blue-dark);
+  background: var(--blue-light);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 0.8rem 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.donate-amount:hover { border-color: var(--blue); }
+.donate-amount.is-active { background: var(--blue); color: var(--white); }
+
+.donate-custom-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 1.6rem;
+}
+
+.donate-custom-field {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--grey);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.donate-custom-field:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(132, 153, 180, 0.2);
+}
+.donate-custom-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.7rem 0.85rem;
+  font-weight: 400;
+}
+.donate-currency {
+  padding: 0 0.9rem;
+  font-weight: 800;
+  color: var(--grey);
+}
+
+.donate-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.6rem;
+}
+
+.donate-paypal { margin-top: 0.4rem; min-height: 50px; }
+
+.donate-hint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--grey);
+  text-align: center;
+}
+
+.donate-success { text-align: center; margin-top: 0; }
+.donate-success h2 { color: var(--blue-dark); margin-bottom: 0.6rem; }
+
+@media (max-width: 560px) {
+  .donate-amounts { grid-template-columns: repeat(2, 1fr); }
+  .donate-card { padding: 1.4rem; }
+}
+
 /* ---------- Dienstleistungen ---------- */
 .services-action { text-align: center; margin-bottom: 2rem; }
 
