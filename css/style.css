@@ -80,8 +80,9 @@ section[id] { scroll-margin-top: var(--header-height); }
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  background: rgba(255, 255, 255, 0.96);
+  z-index: 10000;
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-soft);
 }
@@ -140,7 +141,7 @@ section[id] { scroll-margin-top: var(--header-height); }
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.2s ease, visibility 0.2s ease;
-  z-index: 110;
+  z-index: 10001;
 }
 
 .nav-dropdown:hover .nav-dropdown-menu,
@@ -416,7 +417,13 @@ section[id] { scroll-margin-top: var(--header-height); }
   padding: 0.9rem 1.6rem;
 }
 
-.donate-paypal { margin-top: 0.4rem; min-height: 50px; }
+.donate-paypal {
+  margin-top: 0.4rem;
+  min-height: 50px;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
 
 .donate-hint {
   margin-top: 1rem;

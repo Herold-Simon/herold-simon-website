@@ -10,8 +10,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="Bilder/logo%20favicon/logo.ico" type="image/x-icon">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Spendenseite: Header muss über PayPal-Kartenformular (z-index 300) liegen */
+    body.page-donate .site-header {
+      z-index: 10000 !important;
+      isolation: isolate;
+    }
+    body.page-donate #paypal-button-container {
+      position: relative !important;
+      z-index: 1 !important;
+      isolation: isolate !important;
+    }
+    body.page-donate #paypal-button-container iframe,
+    body.page-donate #paypal-button-container .smart-menu,
+    body.page-donate #paypal-button-container .component-frame,
+    body.page-donate #paypal-button-container [class*="paypal-buttons"] {
+      z-index: 1 !important;
+    }
+  </style>
 </head>
-<body>
+<body class="page-donate">
 
   <header class="site-header">
     <div class="container header-inner">
@@ -149,6 +167,51 @@
         return amt && amt > 0 ? amt : 0;
       }
 
+      function getHeaderOffset() {
+        var header = document.querySelector(".site-header");
+        return header ? header.offsetHeight + 24 : 88;
+      }
+
+      function keepPayPalBelowHeader() {
+        var header = document.querySelector(".site-header");
+        if (header) header.style.zIndex = "10000";
+
+        if (!container) return;
+        container.style.position = "relative";
+        container.style.zIndex = "1";
+
+        container.querySelectorAll("iframe, .smart-menu, .component-frame, [class*='paypal-buttons']").forEach(function (el) {
+          el.style.zIndex = "1";
+        });
+      }
+
+      function scrollPayPalBelowHeader() {
+        if (!container) return;
+        var minTop = getHeaderOffset();
+        var rect = container.getBoundingClientRect();
+        if (rect.top < minTop) {
+          window.scrollBy({ top: rect.top - minTop, behavior: "smooth" });
+        }
+      }
+
+      function watchPayPalLayers() {
+        keepPayPalBelowHeader();
+        if (!container) return;
+        var observer = new MutationObserver(function () {
+          keepPayPalBelowHeader();
+          scrollPayPalBelowHeader();
+        });
+        observer.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+        container.addEventListener("click", function () {
+          [0, 150, 400, 800].forEach(function (delay) {
+            setTimeout(function () {
+              keepPayPalBelowHeader();
+              scrollPayPalBelowHeader();
+            }, delay);
+          });
+        });
+      }
+
       function renderButtons() {
         paypal.Buttons({
           style: { layout: "vertical", color: "gold", shape: "pill", label: "paypal" },
@@ -176,7 +239,9 @@
             console.error("PayPal-Fehler:", err);
             alert("Es ist ein Fehler bei der Zahlung aufgetreten. Bitte versuchen Sie es erneut.");
           }
-        }).render("#paypal-button-container");
+        }).render("#paypal-button-container").then(function () {
+          watchPayPalLayers();
+        });
       }
 
       // PayPal-SDK nur laden, wenn eine Client-ID hinterlegt wurde.
