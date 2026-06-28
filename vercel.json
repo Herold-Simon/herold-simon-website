@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/danke-für-die-spende", "destination": "/Danke-für-die-spende.html" },
+    { "source": "/Danke-für-die-spende", "destination": "/Danke-für-die-spende.html" }
   ]
 }
