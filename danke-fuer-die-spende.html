@@ -88,9 +88,8 @@
         <div id="paypal-button-container" class="donate-paypal"></div>
 
         <p class="donate-hint">
-          Sie werden zu PayPal weitergeleitet und können dort mit Ihrem PayPal-Konto
-          bezahlen – oder als Gast mit Kredit- oder Debitkarte, ohne neues Konto
-          auf unserer Website anzulegen.
+          Bezahlen Sie mit PayPal oder direkt mit Kredit- oder Debitkarte –
+          ein PayPal-Konto ist dafür nicht nötig.
         </p>
       </div>
 
@@ -222,16 +221,10 @@
         });
       }
 
-      function renderButtons() {
-        var paypalButton = paypal.Buttons({
-          fundingSource: paypal.FUNDING.PAYPAL,
-          style: {
-            layout: "vertical",
-            color: "gold",
-            shape: "pill",
-            label: "paypal",
-            height: 48
-          },
+      function buildButtonConfig(fundingSource, style) {
+        return {
+          fundingSource: fundingSource,
+          style: style,
           createOrder: function (data, actions) {
             var amt = getAmount();
             if (!amt) {
@@ -242,7 +235,7 @@
               application_context: {
                 brand_name: "Dr. Herold & Dr. Simon",
                 locale: "de-DE",
-                landing_page: "LOGIN",
+                landing_page: "NO_PREFERENCE",
                 user_action: "PAY_NOW"
               },
               purchase_units: [{
@@ -263,15 +256,35 @@
             alert("Es ist ein Fehler bei der Zahlung aufgetreten. Bitte versuchen Sie es erneut.");
           },
           onCancel: function () {}
+        };
+      }
+
+      function renderButtons() {
+        var sources = [
+          {
+            source: paypal.FUNDING.PAYPAL,
+            style: { layout: "vertical", color: "gold", shape: "pill", label: "paypal", height: 48 }
+          },
+          {
+            source: paypal.FUNDING.CARD,
+            style: { layout: "vertical", color: "black", shape: "pill", label: "pay", height: 48 }
+          }
+        ];
+
+        var rendered = 0;
+        var tasks = sources.map(function (item) {
+          var btn = paypal.Buttons(buildButtonConfig(item.source, item.style));
+          if (!btn.isEligible()) return Promise.resolve();
+          rendered += 1;
+          return btn.render("#paypal-button-container");
         });
 
-        if (!paypalButton.isEligible()) {
-          container.innerHTML =
-            '<p class="donate-hint">PayPal ist in Ihrem Browser gerade nicht verfügbar. Bitte versuchen Sie es später erneut.</p>';
-          return;
-        }
-
-        paypalButton.render("#paypal-button-container").then(function () {
+        Promise.all(tasks).then(function () {
+          if (!rendered) {
+            container.innerHTML =
+              '<p class="donate-hint">Zahlungsmethoden sind gerade nicht verfügbar. Bitte versuchen Sie es später erneut.</p>';
+            return;
+          }
           watchPayPalLayers();
         });
       }
@@ -282,7 +295,7 @@
         s.src = "https://www.paypal.com/sdk/js?client-id=" +
           encodeURIComponent(PAYPAL_CLIENT_ID) +
           "&currency=EUR&intent=capture&locale=de_DE" +
-          "&disable-funding=card,credit,paylater,venmo";
+          "&disable-funding=paylater,venmo";
         s.onload = renderButtons;
         s.onerror = function () {
           container.innerHTML =

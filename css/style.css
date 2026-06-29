@@ -451,6 +451,10 @@ body.page-donate #paypal-button-container iframe {
   max-width: 100% !important;
 }
 
+body.page-donate #paypal-button-container > div + div {
+  margin-top: 0.65rem;
+}
+
 @media (max-width: 860px) {
   body.page-donate #paypal-button-container {
     min-height: 55px;
