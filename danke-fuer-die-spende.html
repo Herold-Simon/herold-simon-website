@@ -88,8 +88,9 @@
         <div id="paypal-button-container" class="donate-paypal"></div>
 
         <p class="donate-hint">
-          Die Zahlung wird sicher über PayPal abgewickelt. Sie können dort auch ohne
-          eigenes PayPal-Konto per Kredit- oder Debitkarte spenden.
+          Sie werden zu PayPal weitergeleitet und können dort mit Ihrem PayPal-Konto
+          bezahlen – oder als Gast mit Kredit- oder Debitkarte, ohne neues Konto
+          auf unserer Website anzulegen.
         </p>
       </div>
 
@@ -213,8 +214,15 @@
       }
 
       function renderButtons() {
-        paypal.Buttons({
-          style: { layout: "vertical", color: "gold", shape: "pill", label: "paypal" },
+        var paypalButton = paypal.Buttons({
+          fundingSource: paypal.FUNDING.PAYPAL,
+          style: {
+            layout: "vertical",
+            color: "gold",
+            shape: "pill",
+            label: "paypal",
+            height: 48
+          },
           createOrder: function (data, actions) {
             var amt = getAmount();
             if (!amt) {
@@ -238,8 +246,17 @@
           onError: function (err) {
             console.error("PayPal-Fehler:", err);
             alert("Es ist ein Fehler bei der Zahlung aufgetreten. Bitte versuchen Sie es erneut.");
-          }
-        }).render("#paypal-button-container").then(function () {
+          },
+          onCancel: function () {}
+        });
+
+        if (!paypalButton.isEligible()) {
+          container.innerHTML =
+            '<p class="donate-hint">PayPal ist in Ihrem Browser gerade nicht verfügbar. Bitte versuchen Sie es später erneut.</p>';
+          return;
+        }
+
+        paypalButton.render("#paypal-button-container").then(function () {
           watchPayPalLayers();
         });
       }
@@ -249,7 +266,8 @@
         var s = document.createElement("script");
         s.src = "https://www.paypal.com/sdk/js?client-id=" +
           encodeURIComponent(PAYPAL_CLIENT_ID) +
-          "&currency=EUR&intent=capture";
+          "&currency=EUR&intent=capture&locale=de_DE" +
+          "&disable-funding=card,credit,paylater,venmo";
         s.onload = renderButtons;
         s.onerror = function () {
           container.innerHTML =

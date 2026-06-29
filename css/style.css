@@ -438,9 +438,27 @@ section[id] { scroll-margin-top: var(--header-height); }
 .donate-paypal {
   margin-top: 0.4rem;
   min-height: 50px;
+  width: 100%;
+  max-width: 100%;
   position: relative;
   z-index: 1;
   isolation: isolate;
+}
+
+body.page-donate #paypal-button-container > div,
+body.page-donate #paypal-button-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 860px) {
+  body.page-donate #paypal-button-container {
+    min-height: 55px;
+  }
+
+  body.page-donate .donate-card {
+    overflow: visible;
+  }
 }
 
 .donate-hint {
