@@ -119,12 +119,21 @@
   <script>
     (function () {
       /* ============================================================
-         HIER DIE PAYPAL-LIVE-CLIENT-ID EINTRAGEN
-         (PayPal Developer Dashboard → Apps & Credentials → "Live"
-          → App auswählen/erstellen → "Client ID" kopieren)
-         Nur die Client ID einfügen – das "Secret" NICHT verwenden!
+         PAYPAL LIVE-CLIENT-ID (WICHTIG!)
+         ─────────────────────────────────────────────────────────
+         Wenn beim Bezahlen „test Store“ oder „Sandbox“ erscheint,
+         ist eine TEST-Client-ID eingetragen – es fließt kein echtes Geld!
+
+         So bekommst du die richtige Live-ID:
+         1. https://developer.paypal.com → einloggen
+         2. Apps & Credentials
+         3. Oben „Live“ wählen (NICHT „Sandbox“!)
+         4. App erstellen oder öffnen → „Client ID“ kopieren
+         5. Unten einfügen und deployen
+
+         Die Live-ID gehört zu deinem echten PayPal-Business-Konto.
          ============================================================ */
-      var PAYPAL_CLIENT_ID = "AdLhRjZbvvqd_BfafwCPgYb-OP4H53PJG21iormZZYvjeRSuSvXOF6kDtDnO-8mkyoqjl3QytA1spLtG";
+      var PAYPAL_CLIENT_ID = "ASHrcarx9NJ4Nb-qdamqc3SsmXGE6PJ9SLl4_yVPLPtmoWNjgWtERV8itle_CQ3FPg21sqMqmBEaCQsq";
 
       var amountsWrap = document.querySelector("[data-donate-amounts]");
       var customInput = document.querySelector("[data-donate-custom]");
@@ -230,6 +239,12 @@
               return actions.reject();
             }
             return actions.order.create({
+              application_context: {
+                brand_name: "Dr. Herold & Dr. Simon",
+                locale: "de-DE",
+                landing_page: "LOGIN",
+                user_action: "PAY_NOW"
+              },
               purchase_units: [{
                 amount: { value: amt.toFixed(2), currency_code: "EUR" },
                 description: "Spende an Tierärztliche Gemeinschaftspraxis Dr. Herold & Dr. Simon"
