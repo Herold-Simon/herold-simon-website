@@ -83,7 +83,20 @@
       return;
     }
 
-    var html = '<h2 class="course-success-name">' + (c.name || "Kurs") + "</h2>";
+    var needsPayment = c.iban || c.bank_recipient || c.price;
+    var html = "";
+    if (needsPayment) {
+      html += '<div class="course-success-alert">';
+      html += '<span class="course-success-alert-icon">!</span>';
+      html += '<div class="course-success-alert-body">';
+      html += "<strong>Wichtig: Ihre Anmeldung wird erst gültig, sobald der Kursbeitrag überwiesen wurde.</strong>";
+      html += c.price
+        ? "<span>Bitte überweisen Sie <strong>" + esc(c.price) + "</strong> mit den unten stehenden Zahlungsdaten.</span>"
+        : "<span>Bitte überweisen Sie den Kursbeitrag mit den unten stehenden Zahlungsdaten.</span>";
+      html += "</div></div>";
+    }
+
+    html += '<h2 class="course-success-name">' + (c.name || "Kurs") + "</h2>";
     html += '<ul class="course-success-list">';
     var when = formatDate(c.event_date);
     if (c.event_time) when += (when ? ", " : "") + c.event_time + " Uhr";
