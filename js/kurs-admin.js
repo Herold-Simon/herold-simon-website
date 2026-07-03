@@ -953,6 +953,17 @@
     });
   }
 
+  /* Lösungen (richtig/falsch) ein- und ausblenden */
+  var revealBtn = document.querySelector("[data-results-reveal]");
+  if (revealBtn) {
+    revealBtn.addEventListener("click", function () {
+      revealSolutions = !revealSolutions;
+      resultsEl.classList.toggle("revealed", revealSolutions);
+      revealBtn.textContent = revealSolutions ? "Lösungen verbergen" : "Lösungen anzeigen";
+      revealBtn.classList.toggle("btn-outline", revealSolutions);
+    });
+  }
+
   /* Vollbild für die Ergebnisse */
   var resultsFsBtn = document.querySelector("[data-results-fullscreen]");
   var resultsSection = document.querySelector('[data-view="results"]');
@@ -983,6 +994,7 @@
 
   var resultsRendered = false;
   var resultsSig = "";
+  var revealSolutions = false;
 
   function perfClass(pct, total) {
     if (!total) return "none";
@@ -1003,8 +1015,47 @@
         var n = counts[a.id] || 0;
         return { id: a.id, text: a.text || "", correct: !!a.correct, n: n, share: total ? Math.round((n / total) * 100) : 0 };
       });
-      return { id: q.id, idx: idx, text: q.question_text || "(ohne Text)", total: total, correctCount: correctCount, pct: pct, answers: answers };
+      return {
+        id: q.id, idx: idx, text: q.question_text || "(ohne Text)",
+        total: total, correctCount: correctCount, pct: pct, answers: answers,
+        mediaType: q.media_type || "none", mediaUrl: q.media_url || null,
+      };
     });
+  }
+
+  function toEmbedUrl(url) {
+    if (!url) return "";
+    var yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+    if (yt) return "https://www.youtube.com/embed/" + yt[1];
+    var vim = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vim) return "https://player.vimeo.com/video/" + vim[1];
+    return url;
+  }
+
+  function buildMediaSquare(d) {
+    if (!d.mediaUrl || d.mediaType === "none") return null;
+    var square = document.createElement("div");
+    square.className = "quiz-result-square";
+    if (d.mediaType === "image") {
+      var img = document.createElement("img");
+      img.src = window.SB.imgUrl(d.mediaUrl);
+      img.alt = "";
+      img.loading = "lazy";
+      square.appendChild(img);
+    } else if (d.mediaType === "video_file") {
+      var v = document.createElement("video");
+      v.src = window.SB.imgUrl(d.mediaUrl);
+      v.controls = true;
+      v.preload = "metadata";
+      square.appendChild(v);
+    } else if (d.mediaType === "video_embed") {
+      var frame = document.createElement("iframe");
+      frame.src = toEmbedUrl(d.mediaUrl);
+      frame.setAttribute("allowfullscreen", "");
+      frame.setAttribute("loading", "lazy");
+      square.appendChild(frame);
+    }
+    return square;
   }
 
   function findByAttr(root, sel, attr, val) {
@@ -1044,6 +1095,7 @@
 
   function buildResults(data, overall) {
     resultsEl.innerHTML = "";
+    resultsEl.classList.toggle("revealed", revealSolutions);
 
     var stats = document.createElement("div");
     stats.className = "review-stats";
@@ -1051,7 +1103,7 @@
     stats.innerHTML =
       resStat(overall.questions, "Fragen") +
       resStat(overall.totalAnswers, "Antworten gesamt") +
-      resStat(overall.overallPct + "%", "richtig gesamt");
+      '<div class="review-stat quiz-result-correct"><strong>' + overall.overallPct + "%</strong><span>richtig gesamt</span></div>";
     resultsEl.appendChild(stats);
 
     data.forEach(function (d) {
@@ -1059,25 +1111,29 @@
       block.className = "quiz-result-block";
       block.setAttribute("data-qid", d.id);
 
-      var square = document.createElement("div");
-      square.className = "quiz-result-square " + perfClass(d.pct, d.total);
-      square.setAttribute("data-square", "");
-      square.innerHTML =
-        '<span class="quiz-result-square-pct" data-square-pct>' + (d.total ? d.pct + "%" : "–") + "</span>" +
-        '<span class="quiz-result-square-lbl">richtig</span>';
-      block.appendChild(square);
+      var square = buildMediaSquare(d);
+      if (square) block.appendChild(square);
 
       var content = document.createElement("div");
       content.className = "quiz-result-content";
 
+      var head = document.createElement("div");
+      head.className = "quiz-result-head";
       var h = document.createElement("h4");
       h.textContent = "Frage " + (d.idx + 1) + ": " + d.text;
-      content.appendChild(h);
+      head.appendChild(h);
+      var badge = document.createElement("span");
+      badge.className = "quiz-result-badge quiz-result-correct " + perfClass(d.pct, d.total);
+      badge.setAttribute("data-badge", "");
+      badge.textContent = d.total ? d.pct + "% richtig" : "keine Antworten";
+      head.appendChild(badge);
+      content.appendChild(head);
 
       var summary = document.createElement("p");
       summary.className = "quiz-result-summary";
-      summary.setAttribute("data-summary", "");
-      summary.textContent = d.total + " Antwort(en) · " + d.correctCount + " richtig";
+      summary.innerHTML =
+        '<span data-ans>' + d.total + " Antwort(en)</span>" +
+        '<span class="quiz-result-correct" data-correct> · ' + d.correctCount + " richtig</span>";
       content.appendChild(summary);
 
       var ul = document.createElement("ul");
@@ -1092,7 +1148,7 @@
         li.appendChild(bar);
         var lbl = document.createElement("span");
         lbl.className = "quiz-result-label";
-        lbl.textContent = (a.correct ? "✓ " : "") + a.text;
+        lbl.textContent = a.text;
         li.appendChild(lbl);
         var num = document.createElement("span");
         num.className = "quiz-result-num";
@@ -1108,6 +1164,7 @@
   }
 
   function updateResults(data, overall) {
+    resultsEl.classList.toggle("revealed", revealSolutions);
     var overallEl = resultsEl.querySelector("[data-results-overall]");
     if (overallEl) {
       var strongs = overallEl.querySelectorAll(".review-stat strong");
@@ -1118,14 +1175,15 @@
     data.forEach(function (d) {
       var block = findByAttr(resultsEl, ".quiz-result-block", "data-qid", d.id);
       if (!block) return;
-      var square = block.querySelector("[data-square]");
-      if (square) {
-        square.className = "quiz-result-square " + perfClass(d.pct, d.total);
-        var pctEl = square.querySelector("[data-square-pct]");
-        if (pctEl) pctEl.textContent = d.total ? d.pct + "%" : "–";
+      var badge = block.querySelector("[data-badge]");
+      if (badge) {
+        badge.className = "quiz-result-badge quiz-result-correct " + perfClass(d.pct, d.total);
+        badge.textContent = d.total ? d.pct + "% richtig" : "keine Antworten";
       }
-      var summary = block.querySelector("[data-summary]");
-      if (summary) summary.textContent = d.total + " Antwort(en) · " + d.correctCount + " richtig";
+      var ans = block.querySelector("[data-ans]");
+      if (ans) ans.textContent = d.total + " Antwort(en)";
+      var corr = block.querySelector("[data-correct]");
+      if (corr) corr.textContent = " · " + d.correctCount + " richtig";
       d.answers.forEach(function (a) {
         var li = findByAttr(block, "li", "data-aid", a.id);
         if (!li) return;
