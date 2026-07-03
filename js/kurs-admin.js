@@ -953,6 +953,24 @@
     });
   }
 
+  /* Vollbild für die Ergebnisse */
+  var resultsFsBtn = document.querySelector("[data-results-fullscreen]");
+  var resultsSection = document.querySelector('[data-view="results"]');
+  if (resultsFsBtn && resultsSection) {
+    resultsFsBtn.addEventListener("click", function () {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else if (resultsSection.requestFullscreen) {
+        resultsSection.requestFullscreen();
+      }
+    });
+    document.addEventListener("fullscreenchange", function () {
+      var active = document.fullscreenElement === resultsSection;
+      resultsSection.classList.toggle("is-fullscreen", active);
+      resultsFsBtn.textContent = active ? "Vollbild beenden" : "Vollbild";
+    });
+  }
+
   // Bei verstecktem Tab pausieren, um unnötige Abfragen zu vermeiden
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
@@ -963,86 +981,159 @@
     }
   });
 
-  async function loadResults() {
-    if (!currentCourse || !resultsEl) return;
-    resultsEl.innerHTML = "<p class=\"admin-block-sub\">Wird geladen …</p>";
-    var qRes = await sb.from("quiz_questions").select("*").eq("course_id", currentCourse.id).order("sort_order", { ascending: true });
-    var sRes = await sb.from("quiz_submissions").select("*").eq("course_id", currentCourse.id);
-    if (qRes.error || sRes.error) { resultsEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
-    var questions = qRes.data || [];
-    var subs = sRes.data || [];
-    if (!questions.length) { resultsEl.innerHTML = "<p class=\"admin-block-sub\">Kein Quiz vorhanden.</p>"; return; }
+  var resultsRendered = false;
+  var resultsSig = "";
 
+  function perfClass(pct, total) {
+    if (!total) return "none";
+    return pct >= 70 ? "good" : pct >= 40 ? "mid" : "low";
+  }
+
+  function computeResults(questions, subs) {
     var byQuestion = {};
     subs.forEach(function (s) { (byQuestion[s.question_id] = byQuestion[s.question_id] || []).push(s); });
-
-    resultsEl.innerHTML = "";
-
-    // Gesamt-Übersicht
-    var totalAnswers = subs.length;
-    var totalCorrect = subs.filter(function (s) { return s.is_correct; }).length;
-    var overallPct = totalAnswers ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
-    var stats = document.createElement("div");
-    stats.className = "review-stats";
-    stats.innerHTML =
-      resStat(questions.length, "Fragen") +
-      resStat(totalAnswers, "Antworten gesamt") +
-      resStat(overallPct + "%", "richtig gesamt");
-    resultsEl.appendChild(stats);
-
-    questions.forEach(function (q, idx) {
+    return questions.map(function (q, idx) {
       var qs = byQuestion[q.id] || [];
       var total = qs.length;
       var correctCount = qs.filter(function (s) { return s.is_correct; }).length;
       var pct = total ? Math.round((correctCount / total) * 100) : 0;
+      var counts = {};
+      qs.forEach(function (s) { (s.selected || []).forEach(function (aid) { counts[aid] = (counts[aid] || 0) + 1; }); });
+      var answers = (q.answers || []).map(function (a) {
+        var n = counts[a.id] || 0;
+        return { id: a.id, text: a.text || "", correct: !!a.correct, n: n, share: total ? Math.round((n / total) * 100) : 0 };
+      });
+      return { id: q.id, idx: idx, text: q.question_text || "(ohne Text)", total: total, correctCount: correctCount, pct: pct, answers: answers };
+    });
+  }
 
+  function findByAttr(root, sel, attr, val) {
+    return Array.prototype.slice.call(root.querySelectorAll(sel)).filter(function (el) {
+      return el.getAttribute(attr) === String(val);
+    })[0];
+  }
+
+  async function loadResults() {
+    if (!currentCourse || !resultsEl) return;
+    if (!resultsRendered) resultsEl.innerHTML = "<p class=\"admin-block-sub\">Wird geladen …</p>";
+    var qRes = await sb.from("quiz_questions").select("*").eq("course_id", currentCourse.id).order("sort_order", { ascending: true });
+    var sRes = await sb.from("quiz_submissions").select("*").eq("course_id", currentCourse.id);
+    if (qRes.error || sRes.error) { resultsEl.innerHTML = "<p>Fehler beim Laden.</p>"; resultsRendered = false; return; }
+    var questions = qRes.data || [];
+    var subs = sRes.data || [];
+    if (!questions.length) { resultsEl.innerHTML = "<p class=\"admin-block-sub\">Kein Quiz vorhanden.</p>"; resultsRendered = false; return; }
+
+    var data = computeResults(questions, subs);
+    var sig = data.map(function (d) { return d.id + ":" + d.answers.map(function (a) { return a.id; }).join(","); }).join("|");
+    var totalAnswers = subs.length;
+    var totalCorrect = subs.filter(function (s) { return s.is_correct; }).length;
+    var overall = {
+      questions: questions.length,
+      totalAnswers: totalAnswers,
+      overallPct: totalAnswers ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
+    };
+
+    if (!resultsRendered || sig !== resultsSig) {
+      buildResults(data, overall);
+      resultsRendered = true;
+      resultsSig = sig;
+    } else {
+      updateResults(data, overall);
+    }
+  }
+
+  function buildResults(data, overall) {
+    resultsEl.innerHTML = "";
+
+    var stats = document.createElement("div");
+    stats.className = "review-stats";
+    stats.setAttribute("data-results-overall", "");
+    stats.innerHTML =
+      resStat(overall.questions, "Fragen") +
+      resStat(overall.totalAnswers, "Antworten gesamt") +
+      resStat(overall.overallPct + "%", "richtig gesamt");
+    resultsEl.appendChild(stats);
+
+    data.forEach(function (d) {
       var block = document.createElement("div");
       block.className = "quiz-result-block";
+      block.setAttribute("data-qid", d.id);
 
-      var head = document.createElement("div");
-      head.className = "quiz-result-head";
+      var square = document.createElement("div");
+      square.className = "quiz-result-square " + perfClass(d.pct, d.total);
+      square.setAttribute("data-square", "");
+      square.innerHTML =
+        '<span class="quiz-result-square-pct" data-square-pct>' + (d.total ? d.pct + "%" : "–") + "</span>" +
+        '<span class="quiz-result-square-lbl">richtig</span>';
+      block.appendChild(square);
+
+      var content = document.createElement("div");
+      content.className = "quiz-result-content";
+
       var h = document.createElement("h4");
-      h.textContent = "Frage " + (idx + 1) + ": " + (q.question_text || "(ohne Text)");
-      head.appendChild(h);
-      var badge = document.createElement("span");
-      badge.className = "quiz-result-badge " + (pct >= 70 ? "good" : pct >= 40 ? "mid" : "low");
-      badge.textContent = total ? pct + "% richtig" : "keine Antworten";
-      head.appendChild(badge);
-      block.appendChild(head);
+      h.textContent = "Frage " + (d.idx + 1) + ": " + d.text;
+      content.appendChild(h);
 
       var summary = document.createElement("p");
       summary.className = "quiz-result-summary";
-      summary.textContent = total + " Antwort(en) · " + correctCount + " richtig";
-      block.appendChild(summary);
-
-      var counts = {};
-      qs.forEach(function (s) {
-        (s.selected || []).forEach(function (aid) { counts[aid] = (counts[aid] || 0) + 1; });
-      });
+      summary.setAttribute("data-summary", "");
+      summary.textContent = d.total + " Antwort(en) · " + d.correctCount + " richtig";
+      content.appendChild(summary);
 
       var ul = document.createElement("ul");
       ul.className = "quiz-result-answers";
-      (q.answers || []).forEach(function (a) {
-        var n = counts[a.id] || 0;
-        var share = total ? Math.round((n / total) * 100) : 0;
+      d.answers.forEach(function (a) {
         var li = document.createElement("li");
         li.className = a.correct ? "is-correct" : "";
+        li.setAttribute("data-aid", a.id);
         var bar = document.createElement("div");
         bar.className = "quiz-result-bar";
-        bar.style.width = share + "%";
+        bar.style.width = a.share + "%";
         li.appendChild(bar);
         var lbl = document.createElement("span");
         lbl.className = "quiz-result-label";
-        lbl.textContent = (a.correct ? "✓ " : "") + (a.text || "");
+        lbl.textContent = (a.correct ? "✓ " : "") + a.text;
         li.appendChild(lbl);
         var num = document.createElement("span");
         num.className = "quiz-result-num";
-        num.textContent = n + " (" + share + "%)";
+        num.setAttribute("data-num", "");
+        num.textContent = a.n + " (" + a.share + "%)";
         li.appendChild(num);
         ul.appendChild(li);
       });
-      block.appendChild(ul);
+      content.appendChild(ul);
+      block.appendChild(content);
       resultsEl.appendChild(block);
+    });
+  }
+
+  function updateResults(data, overall) {
+    var overallEl = resultsEl.querySelector("[data-results-overall]");
+    if (overallEl) {
+      var strongs = overallEl.querySelectorAll(".review-stat strong");
+      if (strongs[0]) strongs[0].textContent = overall.questions;
+      if (strongs[1]) strongs[1].textContent = overall.totalAnswers;
+      if (strongs[2]) strongs[2].textContent = overall.overallPct + "%";
+    }
+    data.forEach(function (d) {
+      var block = findByAttr(resultsEl, ".quiz-result-block", "data-qid", d.id);
+      if (!block) return;
+      var square = block.querySelector("[data-square]");
+      if (square) {
+        square.className = "quiz-result-square " + perfClass(d.pct, d.total);
+        var pctEl = square.querySelector("[data-square-pct]");
+        if (pctEl) pctEl.textContent = d.total ? d.pct + "%" : "–";
+      }
+      var summary = block.querySelector("[data-summary]");
+      if (summary) summary.textContent = d.total + " Antwort(en) · " + d.correctCount + " richtig";
+      d.answers.forEach(function (a) {
+        var li = findByAttr(block, "li", "data-aid", a.id);
+        if (!li) return;
+        var bar = li.querySelector(".quiz-result-bar");
+        if (bar) bar.style.width = a.share + "%";
+        var num = li.querySelector("[data-num]");
+        if (num) num.textContent = a.n + " (" + a.share + "%)";
+      });
     });
   }
 
