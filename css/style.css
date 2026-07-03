@@ -2074,6 +2074,41 @@ body.page-donate #paypal-button-container > div + div {
 .quiz-answer-del:hover { background: #c0504d; color: var(--white); }
 .quiz-edit-actions { margin-top: 0.8rem; }
 
+/* Auto-Aktualisierung: Countdown-Ring */
+.results-refresh-group { display: flex; align-items: center; gap: 0.7rem; }
+.results-countdown {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.results-countdown svg {
+  width: 34px;
+  height: 34px;
+  transform: rotate(-90deg);
+}
+.results-countdown-track {
+  fill: none;
+  stroke: var(--grey-light);
+  stroke-width: 3;
+}
+.results-countdown-progress {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+.results-countdown-num {
+  position: absolute;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+
 .quiz-result-block {
   background: var(--white);
   border: 1px solid var(--grey-light);

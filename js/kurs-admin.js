@@ -148,8 +148,9 @@
       });
       if (view === "users") loadRegistrations();
       if (view === "quiz") loadQuiz();
-      if (view === "results") loadResults();
       if (view === "reviews") loadReviewsAdmin();
+      if (view === "results") { loadResults(); startResultsAuto(); }
+      else stopResultsAuto();
     });
   });
 
@@ -909,7 +910,58 @@
      ============================================================ */
   var resultsEl = document.querySelector("[data-quiz-results]");
   var resultsRefresh = document.querySelector("[data-results-refresh]");
-  if (resultsRefresh) resultsRefresh.addEventListener("click", loadResults);
+
+  /* Auto-Aktualisierung alle 5 Sekunden mit Countdown-Ring */
+  var RESULTS_PERIOD = 5000;
+  var resultsTimer = null;
+  var ringRAF = null;
+  var cycleStart = 0;
+  var ringEl = document.querySelector("[data-results-ring]");
+  var countNumEl = document.querySelector("[data-results-countdown-num]");
+  var RING_C = 2 * Math.PI * 16;
+  if (ringEl) { ringEl.style.strokeDasharray = RING_C.toFixed(2); ringEl.style.strokeDashoffset = "0"; }
+
+  function tickRing() {
+    var elapsed = Date.now() - cycleStart;
+    var frac = Math.min(1, elapsed / RESULTS_PERIOD);
+    if (ringEl) ringEl.style.strokeDashoffset = (RING_C * frac).toFixed(2);
+    if (countNumEl) countNumEl.textContent = String(Math.max(1, Math.ceil((RESULTS_PERIOD - elapsed) / 1000)));
+    ringRAF = requestAnimationFrame(tickRing);
+  }
+
+  function resetCycle() { cycleStart = Date.now(); }
+
+  function startResultsAuto() {
+    stopResultsAuto();
+    resetCycle();
+    tickRing();
+    resultsTimer = setInterval(function () {
+      resetCycle();
+      loadResults();
+    }, RESULTS_PERIOD);
+  }
+
+  function stopResultsAuto() {
+    if (resultsTimer) { clearInterval(resultsTimer); resultsTimer = null; }
+    if (ringRAF) { cancelAnimationFrame(ringRAF); ringRAF = null; }
+  }
+
+  if (resultsRefresh) {
+    resultsRefresh.addEventListener("click", function () {
+      resetCycle();
+      loadResults();
+    });
+  }
+
+  // Bei verstecktem Tab pausieren, um unnötige Abfragen zu vermeiden
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      stopResultsAuto();
+    } else {
+      var rv = document.querySelector('[data-view="results"]');
+      if (rv && !rv.hidden) startResultsAuto();
+    }
+  });
 
   async function loadResults() {
     if (!currentCourse || !resultsEl) return;

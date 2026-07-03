@@ -174,9 +174,18 @@
               <div class="admin-block-head">
                 <div>
                   <h3 class="admin-subhead" style="margin-top:0;">Quiz-Ergebnisse</h3>
-                  <p class="admin-block-sub">Antworten der Teilnehmer je Frage.</p>
+                  <p class="admin-block-sub">Aktualisiert sich automatisch alle 5 Sekunden.</p>
                 </div>
-                <button type="button" class="btn btn-small btn-outline" data-results-refresh>Aktualisieren</button>
+                <div class="results-refresh-group">
+                  <span class="results-countdown" data-results-countdown title="Nächste Aktualisierung">
+                    <svg viewBox="0 0 36 36" aria-hidden="true">
+                      <circle class="results-countdown-track" cx="18" cy="18" r="16"></circle>
+                      <circle class="results-countdown-progress" data-results-ring cx="18" cy="18" r="16"></circle>
+                    </svg>
+                    <span class="results-countdown-num" data-results-countdown-num>5</span>
+                  </span>
+                  <button type="button" class="btn btn-small btn-outline" data-results-refresh>Aktualisieren</button>
+                </div>
               </div>
               <div data-quiz-results></div>
             </div>
