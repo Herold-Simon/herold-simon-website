@@ -172,11 +172,17 @@
           <section class="kurs-view" data-view="results" hidden>
             <div class="admin-card">
               <div class="admin-block-head">
-                <div>
-                  <h3 class="admin-subhead" style="margin-top:0;">Quiz-Ergebnisse</h3>
-                  <p class="admin-block-sub">Aktualisiert sich automatisch alle 5 Sekunden.</p>
+                <div class="results-head-left">
+                  <img class="results-fs-logo" src="Bilder/logo.png" alt="Logo – Tierärztliche Gemeinschaftspraxis Dr. Herold &amp; Dr. Simon">
+                  <div>
+                    <h3 class="admin-subhead" style="margin-top:0;">Quiz-Ergebnisse</h3>
+                    <p class="admin-block-sub">Aktualisiert sich automatisch alle 5 Sekunden.</p>
+                  </div>
                 </div>
                 <div class="results-refresh-group">
+                  <button type="button" class="btn btn-small btn-outline" data-results-reveal>Lösungen anzeigen</button>
+                  <button type="button" class="btn btn-small btn-outline" data-results-fullscreen>Vollbild</button>
+                  <button type="button" class="btn btn-small btn-outline" data-results-refresh>Aktualisieren</button>
                   <span class="results-countdown" data-results-countdown title="Nächste Aktualisierung">
                     <svg viewBox="0 0 36 36" aria-hidden="true">
                       <circle class="results-countdown-track" cx="18" cy="18" r="16"></circle>
@@ -184,9 +190,6 @@
                     </svg>
                     <span class="results-countdown-num" data-results-countdown-num>5</span>
                   </span>
-                  <button type="button" class="btn btn-small" data-results-reveal>Lösungen anzeigen</button>
-                  <button type="button" class="btn btn-small btn-outline" data-results-refresh>Aktualisieren</button>
-                  <button type="button" class="btn btn-small btn-outline" data-results-fullscreen>Vollbild</button>
                 </div>
               </div>
               <div data-quiz-results></div>

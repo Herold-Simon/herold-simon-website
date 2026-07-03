@@ -960,7 +960,7 @@
       revealSolutions = !revealSolutions;
       resultsEl.classList.toggle("revealed", revealSolutions);
       revealBtn.textContent = revealSolutions ? "Lösungen verbergen" : "Lösungen anzeigen";
-      revealBtn.classList.toggle("btn-outline", revealSolutions);
+      revealBtn.classList.toggle("btn-outline", !revealSolutions);
     });
   }
 
@@ -1032,10 +1032,10 @@
     return url;
   }
 
-  function buildMediaSquare(d) {
+  function buildMediaCard(d) {
     if (!d.mediaUrl || d.mediaType === "none") return null;
     var square = document.createElement("div");
-    square.className = "quiz-result-square";
+    square.className = "quiz-result-media";
     if (d.mediaType === "image") {
       var img = document.createElement("img");
       img.src = window.SB.imgUrl(d.mediaUrl);
@@ -1107,15 +1107,12 @@
     resultsEl.appendChild(stats);
 
     data.forEach(function (d) {
+      var row = document.createElement("div");
+      row.className = "quiz-result-row";
+      row.setAttribute("data-qid", d.id);
+
       var block = document.createElement("div");
       block.className = "quiz-result-block";
-      block.setAttribute("data-qid", d.id);
-
-      var square = buildMediaSquare(d);
-      if (square) block.appendChild(square);
-
-      var content = document.createElement("div");
-      content.className = "quiz-result-content";
 
       var head = document.createElement("div");
       head.className = "quiz-result-head";
@@ -1127,14 +1124,14 @@
       badge.setAttribute("data-badge", "");
       badge.textContent = d.total ? d.pct + "% richtig" : "keine Antworten";
       head.appendChild(badge);
-      content.appendChild(head);
+      block.appendChild(head);
 
       var summary = document.createElement("p");
       summary.className = "quiz-result-summary";
       summary.innerHTML =
         '<span data-ans>' + d.total + " Antwort(en)</span>" +
         '<span class="quiz-result-correct" data-correct> · ' + d.correctCount + " richtig</span>";
-      content.appendChild(summary);
+      block.appendChild(summary);
 
       var ul = document.createElement("ul");
       ul.className = "quiz-result-answers";
@@ -1157,9 +1154,13 @@
         li.appendChild(num);
         ul.appendChild(li);
       });
-      content.appendChild(ul);
-      block.appendChild(content);
-      resultsEl.appendChild(block);
+      block.appendChild(ul);
+      row.appendChild(block);
+
+      var media = buildMediaCard(d);
+      if (media) row.appendChild(media);
+
+      resultsEl.appendChild(row);
     });
   }
 
@@ -1173,7 +1174,7 @@
       if (strongs[2]) strongs[2].textContent = overall.overallPct + "%";
     }
     data.forEach(function (d) {
-      var block = findByAttr(resultsEl, ".quiz-result-block", "data-qid", d.id);
+      var block = findByAttr(resultsEl, ".quiz-result-row", "data-qid", d.id);
       if (!block) return;
       var badge = block.querySelector("[data-badge]");
       if (badge) {
