@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Kurs verwalten – Dr. Herold &amp; Dr. Simon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <link rel="icon" href="Bilder/logo%20favicon/logo.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header admin-header">
+    <div class="container header-inner">
+      <a class="logo-link" href="index.html">
+        <img src="Bilder/logo.png" alt="Logo – Tierärztliche Gemeinschaftspraxis Dr. Herold &amp; Dr. Simon">
+      </a>
+      <nav class="main-nav">
+        <a href="admin.html">&larr; Übersicht</a>
+        <a href="#" class="btn btn-small btn-outline" data-logout style="display:none;">Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-gate" data-gate>
+    <p>Bitte anmelden … Sie werden weitergeleitet.</p>
+  </div>
+
+  <main class="section admin-panel" data-admin-view style="display:none;">
+    <div class="container">
+      <div class="admin-page-head">
+        <h1 data-course-title>Neuer Kurs</h1>
+        <p data-course-status-line></p>
+      </div>
+
+      <div class="kurs-admin-layout">
+        <aside class="kurs-admin-sidebar">
+          <button type="button" class="kurs-nav-btn active" data-view-btn="props">Eigenschaften</button>
+          <button type="button" class="kurs-nav-btn" data-view-btn="quiz" data-needs-course>Quiz</button>
+          <button type="button" class="kurs-nav-btn" data-view-btn="results" data-needs-course>Quiz-Ergebnisse</button>
+          <button type="button" class="kurs-nav-btn" data-view-btn="reviews" data-needs-course>Bewertungen</button>
+          <button type="button" class="kurs-nav-btn" data-view-btn="users" data-needs-course>Bisherige Nutzer</button>
+        </aside>
+
+        <div class="kurs-admin-content">
+
+          <!-- ====== Eigenschaften ====== -->
+          <section class="kurs-view" data-view="props">
+            <form data-course-form class="admin-form admin-card">
+              <label>Kursname
+                <input type="text" name="name" required>
+              </label>
+
+              <label>Beschreibung</label>
+              <div class="cv-editor-wrap">
+                <div id="course-desc-editor"></div>
+              </div>
+
+              <div class="admin-form-grid">
+                <label>Datum
+                  <input type="date" name="event_date">
+                </label>
+                <label>Uhrzeit
+                  <input type="text" name="event_time" placeholder="z. B. 14:00">
+                </label>
+                <label>Ort
+                  <input type="text" name="location" placeholder="z. B. Landgut Moralthof">
+                </label>
+                <label>Preis
+                  <input type="text" name="price" placeholder="z. B. 120 €">
+                </label>
+              </div>
+
+              <h3 class="admin-subhead">Zahlungsdaten</h3>
+              <div class="admin-form-grid">
+                <label>Empfänger
+                  <input type="text" name="bank_recipient">
+                </label>
+                <label>IBAN
+                  <input type="text" name="iban" placeholder="DE.. .. ..">
+                </label>
+                <label class="admin-field-wide">Verwendungszweck
+                  <input type="text" name="payment_reference" placeholder="z. B. Kurs Akupunktur + Ihr Name">
+                </label>
+              </div>
+
+              <label>Zusätzlicher Hinweis (auf der Erfolgsseite)</label>
+              <div class="cv-editor-wrap">
+                <div id="course-note-editor"></div>
+              </div>
+
+              <div class="admin-actions">
+                <button type="submit" class="btn">Speichern</button>
+                <button type="button" class="btn btn-outline" data-activate-btn style="display:none;">Als aktiven Kurs setzen</button>
+                <button type="button" class="btn btn-danger" data-finish-btn style="display:none;">Als abgeschlossen markieren</button>
+              </div>
+              <p class="admin-error" data-course-error></p>
+            </form>
+
+            <!-- Bilder -->
+            <div class="admin-card" data-images-block style="display:none;">
+              <h3 class="admin-subhead">Bilder</h3>
+              <form data-course-images-form class="admin-form">
+                <label class="admin-dropzone">
+                  <input type="file" name="images" accept="image/*" multiple>
+                  <span class="admin-dropzone-text">Bilder auswählen</span>
+                  <span class="admin-dropzone-hint" data-images-filecount>mehrere möglich</span>
+                </label>
+                <div class="admin-actions">
+                  <button type="submit" class="btn">Hochladen</button>
+                </div>
+                <p class="admin-error" data-images-error></p>
+              </form>
+              <div class="admin-gallery-grid" data-course-images-list></div>
+            </div>
+          </section>
+
+          <!-- ====== Quiz ====== -->
+          <section class="kurs-view" data-view="quiz" hidden>
+            <div class="admin-card">
+              <div class="admin-block-head">
+                <div>
+                  <h3 class="admin-subhead" style="margin-top:0;">Quiz-Fragen</h3>
+                  <p class="admin-block-sub">Fragen mit Medien und Antwortmöglichkeiten. Ziehen zum Sortieren.</p>
+                </div>
+              </div>
+              <div class="quiz-builder-toolbar">
+                <button type="button" class="btn btn-small" data-quiz-add>+ Frage hinzufügen</button>
+                <button type="button" class="btn btn-small btn-outline" data-quiz-export>Export (JSON)</button>
+                <button type="button" class="btn btn-small btn-outline" data-quiz-import-btn>Import (JSON)</button>
+                <input type="file" accept="application/json,.json" data-quiz-import-file hidden>
+                <button type="button" class="btn btn-small btn-outline" data-quiz-qr>QR-Code herunterladen</button>
+              </div>
+              <p class="admin-block-sub" data-quiz-qrhint></p>
+              <div class="quiz-builder-list" data-quiz-builder></div>
+            </div>
+          </section>
+
+          <!-- ====== Quiz-Ergebnisse ====== -->
+          <section class="kurs-view" data-view="results" hidden>
+            <div class="admin-card">
+              <div class="admin-block-head">
+                <div>
+                  <h3 class="admin-subhead" style="margin-top:0;">Quiz-Ergebnisse</h3>
+                  <p class="admin-block-sub">Antworten der Teilnehmer je Frage.</p>
+                </div>
+                <button type="button" class="btn btn-small btn-outline" data-results-refresh>Aktualisieren</button>
+              </div>
+              <div data-quiz-results></div>
+            </div>
+          </section>
+
+          <!-- ====== Bewertungen ====== -->
+          <section class="kurs-view" data-view="reviews" hidden>
+            <div class="admin-card">
+              <h3 class="admin-subhead" style="margin-top:0;">Bewertungsfragen</h3>
+              <p class="admin-block-sub">Fragen, die Teilnehmer auf der Bewertungsseite beantworten.</p>
+              <div class="quiz-builder-toolbar">
+                <button type="button" class="btn btn-small" data-rq-add>+ Frage hinzufügen</button>
+                <button type="button" class="btn btn-small btn-outline" data-rq-qr>QR-Code (Bewertung) herunterladen</button>
+              </div>
+              <p class="admin-block-sub" data-rq-qrhint></p>
+              <div class="review-q-builder" data-rq-builder></div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-block-head">
+                <div>
+                  <h3 class="admin-subhead" style="margin-top:0;">Bewertungen dieses Kurses</h3>
+                  <p class="admin-block-sub">Freischalten für Seite/Laufband, hinzufügen oder löschen.</p>
+                </div>
+                <button type="button" class="btn btn-small" data-review-add>+ Bewertung hinzufügen</button>
+              </div>
+              <div data-course-reviews></div>
+            </div>
+          </section>
+
+          <!-- ====== Bisherige Nutzer ====== -->
+          <section class="kurs-view" data-view="users" hidden>
+            <div class="admin-card">
+              <h3 class="admin-subhead">Angemeldete Teilnehmer</h3>
+              <div class="kurs-users-wrap" data-registrations></div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="admin-toast" data-toast></div>
+
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/kurs-admin.js"></script>
+</body>
+</html>

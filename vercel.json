@@ -1,6 +1,13 @@
 {
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/kurse", "destination": "/kurse.html" },
+    { "source": "/kurs-anmeldung", "destination": "/kurs-anmeldung.html" },
+    { "source": "/kurs-erfolg", "destination": "/kurs-erfolg.html" },
+    { "source": "/kurs-admin", "destination": "/kurs-admin.html" },
+    { "source": "/quiz", "destination": "/quiz.html" },
+    { "source": "/bewerten", "destination": "/bewerten.html" },
+    { "source": "/bewertungen", "destination": "/bewertungen.html" },
     { "source": "/danke-f:mid(.*)r-die-spende", "destination": "/danke-fuer-die-spende.html" },
     { "source": "/Danke-f:mid(.*)r-die-spende", "destination": "/danke-fuer-die-spende.html" }
   ]

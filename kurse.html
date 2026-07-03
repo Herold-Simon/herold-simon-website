@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 – Seite nicht gefunden – Dr. Herold &amp; Dr. Simon</title>
-  <meta name="robots" content="noindex">
+  <title>Kurse – Dr. Herold &amp; Dr. Simon</title>
+  <meta name="description" content="Kurse der Tierärztlichen Gemeinschaftspraxis für Pferde Dr. Herold & Dr. Simon – jetzt anmelden und mitmachen.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -13,6 +13,7 @@
 </head>
 <body>
 
+  <!-- ======================= Header ======================= -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo-link" href="index.html">
@@ -41,17 +42,44 @@
     </div>
   </header>
 
-  <section class="section">
-    <div class="container" style="text-align: center;">
-      <h1 class="section-title">404 – Seite nicht gefunden</h1>
-      <p class="section-intro">Hoppla! Diese Seite ist leider in den Eimer gegangen.</p>
-      <div class="cv-photo" style="max-width: 480px;">
-        <img src="Bilder/Br%C3%B6d.png" alt="Katze Bröd sitzt in einem Eimer">
-      </div>
-      <a class="btn" href="index.html">Zurück zur Startseite</a>
-    </div>
-  </section>
+  <main class="section">
+    <div class="container">
+      <h1 class="section-title">Kurse</h1>
 
+      <!-- Werbevideo -->
+      <div class="course-video-wrap" data-course-video></div>
+
+      <!-- Werbetext -->
+      <div class="course-promo prose" data-course-promo></div>
+
+      <!-- Bewertungs-Laufband (ab Phase 3 befüllt) -->
+      <section class="course-reviews-marquee" data-review-marquee-section style="display:none;">
+        <h2 class="section-title">Das sagen Teilnehmer</h2>
+        <div class="review-marquee" data-review-marquee>
+          <div class="review-track" data-review-track></div>
+        </div>
+        <div class="course-reviews-action">
+          <a class="btn btn-outline" href="bewertungen.html">Alle Bewertungen ansehen</a>
+        </div>
+      </section>
+
+      <!-- Aktueller Kurs -->
+      <section class="course-active-section" data-active-course></section>
+
+      <!-- Vergangene Kurse -->
+      <section class="past-courses-section" data-past-courses></section>
+    </div>
+  </main>
+
+  <!-- Lightbox für Kursbilder -->
+  <div class="course-lightbox" data-lightbox hidden>
+    <button class="course-lightbox-close" type="button" data-lightbox-close aria-label="Schließen">&times;</button>
+    <button class="course-lightbox-nav prev" type="button" data-lightbox-prev aria-label="Vorheriges Bild">&#10094;</button>
+    <img data-lightbox-img alt="">
+    <button class="course-lightbox-nav next" type="button" data-lightbox-next aria-label="Nächstes Bild">&#10095;</button>
+  </div>
+
+  <!-- ======================= Footer ======================= -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <address class="footer-address">
@@ -65,6 +93,9 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/courses.js"></script>
 </body>
 </html>

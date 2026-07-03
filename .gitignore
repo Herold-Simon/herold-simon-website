@@ -8,3 +8,6 @@ node_modules/
 scripts/
 package.json
 package-lock.json
+
+# Cursor MCP-Konfiguration (enthält geheimen Access-Token)
+.cursor/mcp.json

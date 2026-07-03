@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Bewertungen verwalten – Dr. Herold &amp; Dr. Simon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="Bilder/logo%20favicon/logo.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header admin-header">
+    <div class="container header-inner">
+      <a class="logo-link" href="index.html">
+        <img src="Bilder/logo.png" alt="Logo – Tierärztliche Gemeinschaftspraxis Dr. Herold &amp; Dr. Simon">
+      </a>
+      <nav class="main-nav">
+        <a href="admin.html">&larr; Übersicht</a>
+        <a href="#" class="btn btn-small btn-outline" data-logout style="display:none;">Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-gate" data-gate>
+    <p>Bitte anmelden … Sie werden weitergeleitet.</p>
+  </div>
+
+  <main class="section admin-panel" data-admin-view style="display:none;">
+    <div class="container">
+      <div class="admin-page-head">
+        <h1>Alle Bewertungen</h1>
+        <p>Kursübergreifend freischalten, hinzufügen oder löschen.</p>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-block-head">
+          <label class="admin-field-narrow">Kurs filtern
+            <select data-course-filter>
+              <option value="">Alle Kurse</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-small" data-review-add>+ Bewertung hinzufügen</button>
+        </div>
+        <div data-all-reviews></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="admin-toast" data-toast></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/bewertungen-admin.js"></script>
+</body>
+</html>

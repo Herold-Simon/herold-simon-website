@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 – Seite nicht gefunden – Dr. Herold &amp; Dr. Simon</title>
-  <meta name="robots" content="noindex">
+  <title>Kurs-Anmeldung – Dr. Herold &amp; Dr. Simon</title>
+  <meta name="description" content="Melden Sie sich zum aktuellen Kurs der Tierärztlichen Gemeinschaftspraxis Dr. Herold & Dr. Simon an.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -41,16 +41,36 @@
     </div>
   </header>
 
-  <section class="section">
-    <div class="container" style="text-align: center;">
-      <h1 class="section-title">404 – Seite nicht gefunden</h1>
-      <p class="section-intro">Hoppla! Diese Seite ist leider in den Eimer gegangen.</p>
-      <div class="cv-photo" style="max-width: 480px;">
-        <img src="Bilder/Br%C3%B6d.png" alt="Katze Bröd sitzt in einem Eimer">
+  <main class="section">
+    <div class="container course-form-wrap">
+      <h1 class="course-form-title">Zum Kurs anmelden</h1>
+      <p class="course-form-course" data-course-name></p>
+
+      <div class="course-form-card" data-signup-card>
+        <form data-signup-form>
+          <label class="course-field">
+            <span>Ihr Name</span>
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+          <label class="course-field">
+            <span>E-Mail-Adresse</span>
+            <input type="email" name="email" autocomplete="email" placeholder="optional, wenn Telefon angegeben">
+          </label>
+          <label class="course-field">
+            <span>Telefonnummer</span>
+            <input type="tel" name="phone" autocomplete="tel" placeholder="optional, wenn E-Mail angegeben">
+          </label>
+          <p class="course-field-hint">Bitte geben Sie mindestens eine Kontaktmöglichkeit (E-Mail oder Telefon) an.</p>
+          <button type="submit" class="btn course-form-btn">Verbindlich anmelden</button>
+          <p class="admin-error" data-signup-error></p>
+        </form>
       </div>
-      <a class="btn" href="index.html">Zurück zur Startseite</a>
+
+      <div class="course-form-card" data-no-course style="display:none;">
+        <p>Zurzeit ist kein Kurs zur Anmeldung geöffnet. Bitte schauen Sie später noch einmal auf der <a href="kurse.html">Kurse-Seite</a> vorbei.</p>
+      </div>
     </div>
-  </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
@@ -65,6 +85,9 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/course-register.js"></script>
 </body>
 </html>

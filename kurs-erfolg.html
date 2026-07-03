@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 – Seite nicht gefunden – Dr. Herold &amp; Dr. Simon</title>
-  <meta name="robots" content="noindex">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Anmeldung erfolgreich – Dr. Herold &amp; Dr. Simon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -41,16 +41,21 @@
     </div>
   </header>
 
-  <section class="section">
-    <div class="container" style="text-align: center;">
-      <h1 class="section-title">404 – Seite nicht gefunden</h1>
-      <p class="section-intro">Hoppla! Diese Seite ist leider in den Eimer gegangen.</p>
-      <div class="cv-photo" style="max-width: 480px;">
-        <img src="Bilder/Br%C3%B6d.png" alt="Katze Bröd sitzt in einem Eimer">
+  <main class="section">
+    <div class="container course-success-wrap">
+      <div class="course-success-icon">&#127881;</div>
+      <h1 class="course-success-title">Vielen Dank für Ihre Anmeldung!</h1>
+      <p class="course-success-sub">Wir freuen uns sehr, Sie beim Kurs begrüßen zu dürfen.</p>
+
+      <div class="course-success-card" data-success-card>
+        <p>Einen Moment – Kursdaten werden geladen …</p>
       </div>
-      <a class="btn" href="index.html">Zurück zur Startseite</a>
+
+      <div class="course-success-actions">
+        <a class="btn btn-outline" href="kurse.html">Zurück zur Kurse-Seite</a>
+      </div>
     </div>
-  </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
@@ -65,6 +70,10 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/course-success.js"></script>
 </body>
 </html>

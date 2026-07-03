@@ -82,7 +82,25 @@ document.addEventListener("DOMContentLoaded", function () {
   if ((randomGallery || fullGallery) && window.SB) {
     loadGallery(randomGallery, fullGallery);
   }
+
+  /* ---------- "Kurse"-Button in der Kopfzeile ein-/ausblenden ---------- */
+  if (window.SB) {
+    applyCoursesNavSetting();
+  }
 });
+
+function applyCoursesNavSetting() {
+  var sb = window.SB.get();
+  sb.from("site_settings").select("value").eq("key", "show_courses_nav").maybeSingle()
+    .then(function (res) {
+      // Standard: anzeigen. Nur ausblenden, wenn ausdrücklich auf false gesetzt.
+      if (res && res.data && res.data.value === false) {
+        document.querySelectorAll('.main-nav a[href="kurse.html"]').forEach(function (link) {
+          link.style.display = "none";
+        });
+      }
+    });
+}
 
 function renderTeam(container) {
   var sb = window.SB.get();

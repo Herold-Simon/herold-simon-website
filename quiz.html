@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 – Seite nicht gefunden – Dr. Herold &amp; Dr. Simon</title>
-  <meta name="robots" content="noindex">
+  <title>Quiz – Dr. Herold &amp; Dr. Simon</title>
+  <meta name="description" content="Quiz zum aktuellen Kurs der Tierärztlichen Gemeinschaftspraxis Dr. Herold & Dr. Simon.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -41,16 +41,20 @@
     </div>
   </header>
 
-  <section class="section">
-    <div class="container" style="text-align: center;">
-      <h1 class="section-title">404 – Seite nicht gefunden</h1>
-      <p class="section-intro">Hoppla! Diese Seite ist leider in den Eimer gegangen.</p>
-      <div class="cv-photo" style="max-width: 480px;">
-        <img src="Bilder/Br%C3%B6d.png" alt="Katze Bröd sitzt in einem Eimer">
+  <main class="section">
+    <div class="container quiz-wrap">
+      <h1 class="section-title" data-quiz-title>Quiz</h1>
+      <p class="quiz-course" data-quiz-course></p>
+      <div class="quiz-list" data-quiz-list>
+        <p class="course-empty">Quiz wird geladen …</p>
       </div>
-      <a class="btn" href="index.html">Zurück zur Startseite</a>
+      <div class="quiz-done" data-quiz-done hidden>
+        <div class="quiz-done-icon">&#10003;</div>
+        <h2>Geschafft!</h2>
+        <p>Du hast alle Fragen beantwortet. Vielen Dank fürs Mitmachen.</p>
+      </div>
     </div>
-  </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
@@ -65,6 +69,9 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/quiz.js"></script>
 </body>
 </html>

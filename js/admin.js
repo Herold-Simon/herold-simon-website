@@ -49,6 +49,30 @@
     },
   });
 
+  var promoQuill = new Quill("#course-promo-editor", {
+    theme: "snow",
+    placeholder: "Werbetext für die Kurse-Seite …",
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ["bold", "italic", "underline"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link"],
+        ["clean"],
+      ],
+    },
+  });
+
+  function setPromo(html) {
+    promoQuill.setText("");
+    if (html) promoQuill.clipboard.dangerouslyPasteHTML(html);
+  }
+  function getPromo() {
+    var html = promoQuill.root.innerHTML;
+    if (html === "<p><br></p>" || html === "<p></p>") return "";
+    return html;
+  }
+
   function setCv(html) {
     quill.setText("");
     if (html) quill.clipboard.dangerouslyPasteHTML(html);
@@ -149,6 +173,8 @@
     await loadTeam();
     await loadLayout();
     loadGallery();
+    loadCourseSettings();
+    loadCourseList();
   }
 
   /* ---------- Login / Logout ---------- */
@@ -665,6 +691,152 @@
     } catch (e) { /* ignorieren */ }
     await loadGallery();
     toast("Bild gelöscht.", "success");
+  }
+
+  /* ---------- Kurse: globale Einstellungen (Video + Werbetext) ---------- */
+  var courseSettingsForm = qs("[data-course-settings-form]");
+  var courseListEl = qs("[data-course-list]");
+
+  function updateVideoFields() {
+    if (!courseSettingsForm) return;
+    var type = courseSettingsForm.video_type.value;
+    qs("[data-video-url-field]").style.display = type === "file" ? "none" : "";
+    qs("[data-video-file-field]").style.display = type === "file" ? "" : "none";
+  }
+
+  if (courseSettingsForm) {
+    courseSettingsForm.video_type.addEventListener("change", updateVideoFields);
+
+    courseSettingsForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var msg = qs("[data-course-settings-msg]");
+      msg.textContent = "";
+      var btn = courseSettingsForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = "Speichern …";
+      try {
+        var type = courseSettingsForm.video_type.value;
+        var url = courseSettingsForm.video_url.value.trim();
+        if (type === "file") {
+          var file = courseSettingsForm.video_file.files[0];
+          if (file) {
+            url = await uploadImage("courses", file);
+          } else {
+            // vorhandenen Wert beibehalten
+            url = courseSettingsForm.getAttribute("data-current-file-url") || "";
+          }
+        }
+        var video = url ? { type: type, url: url } : null;
+
+        await Promise.all([
+          sb.from("site_settings").upsert(
+            { key: "courses_video", value: video, updated_at: new Date().toISOString() },
+            { onConflict: "key" }
+          ),
+          sb.from("site_settings").upsert(
+            { key: "courses_promo_text", value: { html: getPromo() }, updated_at: new Date().toISOString() },
+            { onConflict: "key" }
+          ),
+          sb.from("site_settings").upsert(
+            { key: "show_courses_nav", value: courseSettingsForm.show_courses_nav.checked, updated_at: new Date().toISOString() },
+            { onConflict: "key" }
+          ),
+        ]);
+        await loadCourseSettings();
+        toast("Kurse-Einstellungen gespeichert.", "success");
+      } catch (ex) {
+        msg.textContent = "Fehler beim Speichern: " + (ex.message || ex);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Speichern";
+      }
+    });
+  }
+
+  async function loadCourseSettings() {
+    if (!courseSettingsForm) return;
+    var res = await sb.from("site_settings").select("key,value").in("key", ["courses_video", "courses_promo_text", "show_courses_nav"]);
+    var map = {};
+    (res.data || []).forEach(function (r) { map[r.key] = r.value; });
+
+    // Standard: Button anzeigen, außer es ist ausdrücklich auf false gesetzt
+    courseSettingsForm.show_courses_nav.checked = map.show_courses_nav !== false;
+
+    var video = map.courses_video || {};
+    courseSettingsForm.video_type.value = video.type === "file" ? "file" : "embed";
+    courseSettingsForm.video_url.value = video.type === "file" ? "" : (video.url || "");
+    courseSettingsForm.setAttribute("data-current-file-url", video.type === "file" ? (video.url || "") : "");
+    var cur = qs("[data-video-current]");
+    if (cur) cur.textContent = video.type === "file" && video.url ? "Aktuelles Video ist hochgeladen." : "";
+    courseSettingsForm.video_file.value = "";
+    updateVideoFields();
+
+    var promo = map.courses_promo_text;
+    setPromo(promo && promo.html ? promo.html : "");
+  }
+
+  /* ---------- Kurse: Liste ---------- */
+  function courseStatusLabel(status) {
+    if (status === "active") return "Aktiv";
+    if (status === "past") return "Vergangen";
+    return "Entwurf";
+  }
+
+  async function loadCourseList() {
+    if (!courseListEl) return;
+    var res = await sb.from("courses").select("id,name,status,event_date,sort_order")
+      .order("status", { ascending: true })
+      .order("event_date", { ascending: false });
+    if (res.error) { courseListEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
+    var courses = res.data || [];
+    courseListEl.innerHTML = "";
+    if (!courses.length) {
+      courseListEl.innerHTML = "<p class=\"admin-block-sub\">Noch keine Kurse angelegt.</p>";
+      return;
+    }
+    courses.forEach(function (c) {
+      var row = document.createElement("div");
+      row.className = "admin-list-row";
+
+      var label = document.createElement("span");
+      label.className = "admin-list-name";
+      label.textContent = c.name || "(ohne Namen)";
+      row.appendChild(label);
+
+      var badge = document.createElement("span");
+      badge.className = "course-status-badge status-" + (c.status || "draft");
+      badge.textContent = courseStatusLabel(c.status);
+      row.appendChild(badge);
+
+      if (c.event_date) {
+        var date = document.createElement("span");
+        date.className = "admin-list-order";
+        date.textContent = c.event_date;
+        row.appendChild(date);
+      }
+
+      var editLink = document.createElement("a");
+      editLink.className = "btn btn-small";
+      editLink.textContent = "Öffnen";
+      editLink.href = "kurs-admin.html?id=" + encodeURIComponent(c.id);
+      row.appendChild(editLink);
+
+      var delBtn = document.createElement("button");
+      delBtn.className = "btn btn-small btn-danger";
+      delBtn.textContent = "Löschen";
+      delBtn.addEventListener("click", function () { deleteCourse(c); });
+      row.appendChild(delBtn);
+
+      courseListEl.appendChild(row);
+    });
+  }
+
+  async function deleteCourse(c) {
+    if (!window.confirm('Kurs "' + (c.name || "") + '" mit allen Bildern und Anmeldungen wirklich löschen?')) return;
+    var res = await sb.from("courses").delete().eq("id", c.id);
+    if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
+    await loadCourseList();
+    toast("Kurs gelöscht.", "success");
   }
 
   /* ---------- Passwort ändern ---------- */

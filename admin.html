@@ -48,8 +48,64 @@
     <div class="container">
       <div class="admin-page-head">
         <h1>Verwaltung</h1>
-        <p>Verwalte hier die Mitarbeiter, die Galerie und dein Passwort.</p>
+        <p>Verwalte hier die Kurse, die Mitarbeiter, die Galerie und dein Passwort.</p>
       </div>
+
+      <!-- Kurse -->
+      <section class="admin-block">
+        <div class="admin-block-head">
+          <div>
+            <h2>Kurse</h2>
+            <p class="admin-block-sub">Globales Video und Werbetext für die Kurse-Seite. Darunter alle Kurse – zum Bearbeiten anklicken.</p>
+          </div>
+          <div class="admin-head-actions">
+            <a class="btn btn-outline btn-small" href="bewertungen-admin.html">Alle Bewertungen</a>
+            <a class="btn" href="kurs-admin.html">+ Neuer Kurs</a>
+          </div>
+        </div>
+
+        <form data-course-settings-form class="admin-form admin-card">
+          <h3>Kurse-Seite: Video &amp; Werbetext</h3>
+
+          <label class="admin-check-row">
+            <input type="checkbox" name="show_courses_nav">
+            <span>„Kurse“-Button in der Kopfzeile der Website anzeigen</span>
+          </label>
+
+          <label class="admin-field-narrow">Video-Typ
+            <select name="video_type">
+              <option value="embed">Link (YouTube / Vimeo)</option>
+              <option value="file">Hochgeladenes Video</option>
+            </select>
+          </label>
+
+          <label data-video-url-field>Video-Link
+            <input type="url" name="video_url" placeholder="z. B. https://youtu.be/abc123">
+          </label>
+
+          <div class="admin-image-field" data-video-file-field style="display:none;">
+            <span class="admin-field-label">Video-Datei hochladen</span>
+            <label class="admin-dropzone admin-dropzone-sm">
+              <input type="file" name="video_file" accept="video/*">
+              <span class="admin-dropzone-text">Video auswählen</span>
+              <span class="admin-dropzone-hint">MP4 (verbraucht Speicher)</span>
+            </label>
+            <p class="admin-block-sub" data-video-current></p>
+          </div>
+
+          <label>Werbetext (unter dem Video)</label>
+          <div class="cv-editor-wrap">
+            <div id="course-promo-editor"></div>
+          </div>
+
+          <div class="admin-actions">
+            <button type="submit" class="btn">Speichern</button>
+          </div>
+          <p class="admin-error" data-course-settings-msg></p>
+        </form>
+
+        <div data-course-list class="admin-list"></div>
+      </section>
 
       <!-- Mitarbeiter -->
       <section class="admin-block">
