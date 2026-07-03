@@ -102,9 +102,19 @@
     var modal = document.createElement("div");
     modal.className = "modal-card";
 
+    var header = document.createElement("div");
+    header.className = "modal-head";
     var title = document.createElement("h3");
     title.textContent = "Bewertung hinzufügen";
-    modal.appendChild(title);
+    header.appendChild(title);
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "modal-close";
+    closeBtn.setAttribute("aria-label", "Schließen");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.addEventListener("click", close);
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
 
     var form = document.createElement("form");
     form.className = "admin-form modal-form";
@@ -134,11 +144,18 @@
     form.appendChild(nameLabel);
 
     var starLabel = document.createElement("label");
+    starLabel.className = "modal-sublabel";
     starLabel.textContent = "Sterne (optional)";
     form.appendChild(starLabel);
     var starWrap = document.createElement("div");
     starWrap.className = "review-stars-input";
     starWrap.setAttribute("data-stars", "0");
+    function paintStars(n) {
+      Array.prototype.slice.call(starWrap.querySelectorAll(".review-star-btn")).forEach(function (s, i2) {
+        s.textContent = i2 < n ? "★" : "☆";
+        s.classList.toggle("on", i2 < n);
+      });
+    }
     for (var i = 1; i <= 5; i++) {
       (function (val) {
         var b = document.createElement("button");
@@ -149,13 +166,15 @@
           var cur = parseInt(starWrap.getAttribute("data-stars"), 10) || 0;
           var next = cur === val ? 0 : val; // erneutes Klicken hebt auf
           starWrap.setAttribute("data-stars", String(next));
-          Array.prototype.slice.call(starWrap.querySelectorAll(".review-star-btn")).forEach(function (s, i2) {
-            s.textContent = i2 < next ? "★" : "☆";
-          });
+          paintStars(next);
         });
+        b.addEventListener("mouseenter", function () { paintStars(val); });
         starWrap.appendChild(b);
       })(i);
     }
+    starWrap.addEventListener("mouseleave", function () {
+      paintStars(parseInt(starWrap.getAttribute("data-stars"), 10) || 0);
+    });
     form.appendChild(starWrap);
 
     var textLabel = document.createElement("label");

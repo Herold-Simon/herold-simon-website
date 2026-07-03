@@ -144,7 +144,7 @@
 
     var badge = document.createElement("span");
     badge.className = "course-badge";
-    badge.textContent = "Aktueller Kurs";
+    badge.textContent = "Anmeldung offen";
     body.appendChild(badge);
 
     var h2 = document.createElement("h2");

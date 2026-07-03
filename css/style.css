@@ -1413,6 +1413,39 @@ body.page-donate #paypal-button-container > div + div {
    Kurse – öffentliche Seiten
    ============================================================ */
 
+/* Seitenhintergrund + Rhythmus */
+.courses-page {
+  background: linear-gradient(180deg, var(--blue-light) 0%, #f7f9fc 100%);
+}
+.courses-block { margin: 3.5rem 0 0; }
+.courses-page .container > .course-video-wrap { margin-top: 0.5rem; }
+
+/* Hero */
+.courses-hero {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+}
+.courses-hero h1 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin-bottom: 0.6rem;
+}
+.courses-hero h1::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  background: var(--blue);
+  border-radius: 2px;
+  margin: 0.9rem auto 0;
+}
+.courses-hero-sub {
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
 /* Werbevideo */
 .course-video-wrap {
   position: relative;
@@ -1457,12 +1490,15 @@ body.page-donate #paypal-button-container > div + div {
 }
 
 /* Aktiver Kurs */
-.course-active-section { margin: 2.5rem 0 3.5rem; }
+.course-active-section { margin: 0; }
 .course-empty {
   text-align: center;
   color: var(--grey);
   font-size: 1.1rem;
-  padding: 2rem 0;
+  padding: 2.5rem 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
 }
 .course-active-card {
   display: grid;
@@ -1517,21 +1553,39 @@ body.page-donate #paypal-button-container > div + div {
   object-fit: cover;
 }
 .course-active-info {
-  padding: 2.2rem;
+  padding: 2.4rem 2.4rem 2.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
 }
 .course-badge {
   align-self: flex-start;
-  background: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #2e7d32;
   color: var(--white);
   font-weight: 800;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.3rem 0.9rem;
+  padding: 0.35rem 0.9rem;
   border-radius: 999px;
+}
+.course-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b6f0b9;
+  box-shadow: 0 0 0 0 rgba(182, 240, 185, 0.7);
+  animation: course-badge-pulse 2s infinite;
+}
+@keyframes course-badge-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(182, 240, 185, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(182, 240, 185, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(182, 240, 185, 0); }
 }
 .course-active-info h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
 .course-meta {
@@ -1540,15 +1594,26 @@ body.page-donate #paypal-button-container > div + div {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
   color: var(--text);
+  border-top: 1px solid var(--grey-light);
 }
-.course-meta li { font-size: 1.02rem; }
-.course-desc { color: var(--text); }
-.course-signup-btn { align-self: flex-start; margin-top: 0.6rem; font-size: 1.05rem; }
+.course-meta li {
+  font-size: 1.02rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--grey-light);
+}
+.course-meta li strong { color: var(--blue-dark); }
+.course-desc { color: var(--text); line-height: 1.7; }
+.course-signup-btn {
+  align-self: stretch;
+  text-align: center;
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.6rem;
+}
 
 /* Vergangene Kurse */
-.past-courses-section { margin-top: 3rem; }
+.past-courses-section { margin-top: 3.5rem; }
 .past-courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -1559,6 +1624,11 @@ body.page-donate #paypal-button-container > div + div {
   overflow: hidden;
   box-shadow: var(--shadow-soft);
   background: var(--white);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.past-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
 }
 .past-course-thumb {
   position: relative;
@@ -1828,9 +1898,6 @@ body.page-donate #paypal-button-container > div + div {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
-  border: 2px solid var(--blue);
-  border-radius: var(--radius);
-  overflow: hidden;
 }
 .kurs-users-table th,
 .kurs-users-table td {
@@ -2466,20 +2533,97 @@ body.page-donate #paypal-button-container > div + div {
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.8rem;
+  padding: 0;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  animation: modal-pop 0.18s ease;
 }
-.modal-card h3 { margin-bottom: 1rem; }
-.modal-form label { display: block; margin-bottom: 0.8rem; font-weight: 700; }
+@keyframes modal-pop {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.3rem 1.6rem;
+  border-bottom: 1px solid var(--grey-light);
+  background: var(--blue-light);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.modal-head h3 { margin: 0; color: var(--blue-dark); }
+.modal-close {
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.8rem;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.modal-close:hover { background: rgba(58, 63, 71, 0.1); }
+.modal-form { padding: 1.5rem 1.6rem 1.6rem; }
+.modal-form label { display: block; margin-bottom: 1rem; font-weight: 700; }
+.modal-form .modal-sublabel { margin-bottom: 0.4rem; }
 .modal-form input,
 .modal-form select,
 .modal-form textarea {
   width: 100%;
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
   font-weight: 400;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--grey);
+  border-radius: 10px;
+  font-family: inherit;
 }
-.modal-checks { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.4rem 0 0.8rem; }
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(132, 153, 180, 0.25);
+}
+.modal-form .review-stars-input { margin-bottom: 1rem; gap: 0.35rem; }
+.modal-form .review-star-btn {
+  font-size: 2.1rem;
+  color: var(--grey);
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+.modal-form .review-star-btn.on { color: #f5b301; }
+.modal-form .review-star-btn:hover { transform: scale(1.15); }
+.modal-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.4rem 0 1.2rem;
+}
+.modal-checks .review-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--grey-light);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin: 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+.modal-checks .review-toggle input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 4px;
+  box-shadow: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
 .modal-actions { display: flex; gap: 0.7rem; }
+.modal-actions .btn { flex: 1; }

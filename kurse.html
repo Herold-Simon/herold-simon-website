@@ -42,9 +42,11 @@
     </div>
   </header>
 
-  <main class="section">
+  <main class="section courses-page">
     <div class="container">
-      <h1 class="section-title">Kurse</h1>
+      <header class="courses-hero">
+        <h1>Unsere Kurse</h1>
+      </header>
 
       <!-- Werbevideo -->
       <div class="course-video-wrap" data-course-video></div>
@@ -53,7 +55,7 @@
       <div class="course-promo prose" data-course-promo></div>
 
       <!-- Bewertungs-Laufband (ab Phase 3 befüllt) -->
-      <section class="course-reviews-marquee" data-review-marquee-section style="display:none;">
+      <section class="courses-block course-reviews-marquee" data-review-marquee-section style="display:none;">
         <h2 class="section-title">Das sagen Teilnehmer</h2>
         <div class="review-marquee" data-review-marquee>
           <div class="review-track" data-review-track></div>
@@ -64,10 +66,13 @@
       </section>
 
       <!-- Aktueller Kurs -->
-      <section class="course-active-section" data-active-course></section>
+      <section class="courses-block">
+        <h2 class="section-title">Aktueller Kurs</h2>
+        <div class="course-active-section" data-active-course></div>
+      </section>
 
       <!-- Vergangene Kurse -->
-      <section class="past-courses-section" data-past-courses></section>
+      <section class="courses-block past-courses-section" data-past-courses></section>
     </div>
   </main>
 
