@@ -48,11 +48,16 @@
 
       <form class="course-form-card" data-review-form>
         <label class="course-field">
-          <span>Ihr Name (optional)</span>
-          <input type="text" name="author_name" autocomplete="name">
+          <span>Ihr Name</span>
+          <input type="text" name="author_name" autocomplete="name" required>
         </label>
-        <div data-review-questions></div>
-        <button type="submit" class="btn course-form-btn">Bewertung absenden</button>
+        <button type="button" class="btn course-form-btn" data-review-confirm-name>Weiter</button>
+
+        <div data-review-body style="display:none;">
+          <button type="button" class="btn btn-outline btn-small" data-review-edit-name style="margin-bottom:1rem;">Name ändern</button>
+          <div data-review-questions></div>
+          <button type="submit" class="btn course-form-btn">Bewertung absenden</button>
+        </div>
         <p class="admin-error" data-review-error></p>
       </form>
 

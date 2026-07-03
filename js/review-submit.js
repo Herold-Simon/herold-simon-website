@@ -9,6 +9,9 @@
   var noneEl = document.querySelector("[data-review-none]");
   var thanksEl = document.querySelector("[data-review-thanks]");
   var errEl = document.querySelector("[data-review-error]");
+  var bodyEl = document.querySelector("[data-review-body]");
+  var confirmNameBtn = document.querySelector("[data-review-confirm-name]");
+  var editNameBtn = document.querySelector("[data-review-edit-name]");
 
   var activeCourse = null;
   var questions = [];
@@ -86,13 +89,41 @@
     return wrap;
   }
 
+  if (confirmNameBtn) {
+    confirmNameBtn.addEventListener("click", function () {
+      if (errEl) errEl.textContent = "";
+      var name = form.author_name.value.trim();
+      if (!name) {
+        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein.";
+        form.author_name.focus();
+        return;
+      }
+      form.author_name.readOnly = true;
+      confirmNameBtn.style.display = "none";
+      if (bodyEl) bodyEl.style.display = "";
+    });
+  }
+
+  if (editNameBtn) {
+    editNameBtn.addEventListener("click", function () {
+      form.author_name.readOnly = false;
+      form.author_name.focus();
+      if (bodyEl) bodyEl.style.display = "none";
+      if (confirmNameBtn) confirmNameBtn.style.display = "";
+    });
+  }
+
   if (form) {
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
       if (errEl) errEl.textContent = "";
       if (!activeCourse) return;
 
-      var authorName = form.author_name.value.trim() || null;
+      var authorName = form.author_name.value.trim();
+      if (!authorName) {
+        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein.";
+        return;
+      }
       var rows = [];
       Array.prototype.slice.call(questionsEl.querySelectorAll(".review-q")).forEach(function (block) {
         var qid = block.getAttribute("data-qid");
