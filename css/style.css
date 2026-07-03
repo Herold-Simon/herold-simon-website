@@ -2618,6 +2618,13 @@ body.page-donate #paypal-button-container > div + div {
 }
 .review-adm-stars { color: #f5b301; font-size: 1.25rem; letter-spacing: 0.08em; }
 .review-adm-meta { color: var(--grey); font-size: 0.85rem; font-weight: 700; }
+.review-adm-question {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--blue-dark);
+  margin: 0 0 0.15rem;
+  line-height: 1.35;
+}
 .review-adm-text {
   font-size: 1rem;
   line-height: 1.5;

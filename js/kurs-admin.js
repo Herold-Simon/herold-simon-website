@@ -1331,13 +1331,18 @@
   }
 
   /* ---------- Bewertungen dieses Kurses (gemeinsames Modul) ---------- */
+  var reviewQuestionNames = {};
+
   function reviewCtx() {
-    return { sb: sb, toast: toast, reload: loadCourseReviews, courseId: currentCourse ? currentCourse.id : null };
+    return { sb: sb, toast: toast, reload: loadCourseReviews, courseId: currentCourse ? currentCourse.id : null, questionNames: reviewQuestionNames };
   }
 
   async function loadCourseReviews() {
     if (!currentCourse || !courseReviewsEl) return;
     courseReviewsEl.innerHTML = "<p class=\"admin-block-sub\">Wird geladen …</p>";
+    var qres = await sb.from("review_questions").select("id,question_text").eq("course_id", currentCourse.id);
+    reviewQuestionNames = {};
+    (qres.data || []).forEach(function (q) { reviewQuestionNames[q.id] = q.question_text; });
     var res = await sb.from("reviews").select("*").eq("course_id", currentCourse.id).order("created_at", { ascending: false });
     if (res.error) { courseReviewsEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
     window.ReviewCards.renderList(courseReviewsEl, res.data || [], reviewCtx());

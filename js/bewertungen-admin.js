@@ -12,6 +12,7 @@
 
   var courseNames = {};
   var courseList = [];
+  var questionNames = {};
 
   /* ---------- Toast ---------- */
   var toastEl = document.querySelector("[data-toast]");
@@ -42,6 +43,9 @@
       filterEl.appendChild(opt);
     });
 
+    var qRes = await sb.from("review_questions").select("id,question_text");
+    (qRes.data || []).forEach(function (q) { questionNames[q.id] = q.question_text; });
+
     loadReviews();
   })();
 
@@ -56,7 +60,7 @@
   if (filterEl) filterEl.addEventListener("change", loadReviews);
 
   function ctx() {
-    return { sb: sb, toast: toast, reload: loadReviews, courseNames: courseNames };
+    return { sb: sb, toast: toast, reload: loadReviews, courseNames: courseNames, questionNames: questionNames };
   }
 
   async function loadReviews() {

@@ -69,6 +69,14 @@
       top.appendChild(meta);
       card.appendChild(top);
 
+      var qText = (ctx.questionNames && ctx.questionNames[r.question_id]) || null;
+      if (qText) {
+        var q = document.createElement("p");
+        q.className = "review-adm-question";
+        q.textContent = qText;
+        card.appendChild(q);
+      }
+
       var text = document.createElement("p");
       text.className = "review-adm-text";
       text.textContent = r.text || "(kein Text)";
