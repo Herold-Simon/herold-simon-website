@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Bewertungen verwalten – Dr. Herold &amp; Dr. Simon</title>
+  <title>Kurse verwalten – Dr. Herold &amp; Dr. Simon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -33,26 +33,18 @@
     <div class="container">
       <div class="admin-page-head admin-page-head-row">
         <div>
-          <h1>Alle Bewertungen</h1>
-          <p>Kursübergreifend freischalten, hinzufügen oder löschen.</p>
+          <h1>Kurse verwalten</h1>
+          <p>Alle Kurse im Überblick – aktiv schalten, bearbeiten oder löschen.</p>
         </div>
         <div class="admin-head-actions">
-          <a class="btn btn-outline" href="kurse-verwaltung.html">Kurse verwalten</a>
-          <button type="button" class="btn" data-review-add>+ Bewertung hinzufügen</button>
+          <a class="btn btn-outline" href="bewertungen-admin.html">Alle Bewertungen</a>
+          <a class="btn" href="kurs-admin.html">+ Neuer Kurs</a>
         </div>
       </div>
 
-      <div class="review-stats" data-review-stats></div>
-
-      <div class="review-toolbar">
-        <label class="admin-field-narrow">Kurs filtern
-          <select data-course-filter>
-            <option value="">Alle Kurse</option>
-          </select>
-        </label>
+      <div class="course-cards" data-course-cards>
+        <p class="admin-block-sub">Wird geladen …</p>
       </div>
-
-      <div data-all-reviews></div>
     </div>
   </main>
 
@@ -60,7 +52,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/reviews-admin-shared.js"></script>
-  <script src="js/bewertungen-admin.js"></script>
+  <script src="js/kurse-verwaltung.js"></script>
 </body>
 </html>

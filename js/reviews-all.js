@@ -20,7 +20,7 @@
   }
 
   Promise.all([
-    sb.from("reviews").select("id,text,stars,author_name,course_id,created_at").eq("show_on_page", true).order("created_at", { ascending: false }),
+    sb.from("reviews").select("id,text,stars,author_name,course_id,course_name,created_at").eq("show_on_page", true).order("created_at", { ascending: false }),
     sb.from("courses").select("id,name"),
   ]).then(function (r) {
     if (r[0].error) { grid.innerHTML = "<p class=\"course-empty\">Fehler beim Laden.</p>"; return; }
@@ -52,7 +52,8 @@
       meta.className = "review-meta";
       var parts = [];
       if (rv.author_name) parts.push(rv.author_name);
-      if (names[rv.course_id]) parts.push(names[rv.course_id]);
+      var cName = names[rv.course_id] || rv.course_name;
+      if (cName) parts.push(cName);
       var dstr = formatDate(rv.created_at);
       if (dstr) parts.push(dstr);
       meta.textContent = parts.join(" · ");

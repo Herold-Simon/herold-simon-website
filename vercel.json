@@ -5,6 +5,8 @@
     { "source": "/kurs-anmeldung", "destination": "/kurs-anmeldung.html" },
     { "source": "/kurs-erfolg", "destination": "/kurs-erfolg.html" },
     { "source": "/kurs-admin", "destination": "/kurs-admin.html" },
+    { "source": "/kurse-verwaltung", "destination": "/kurse-verwaltung.html" },
+    { "source": "/bewertungen-admin", "destination": "/bewertungen-admin.html" },
     { "source": "/quiz", "destination": "/quiz.html" },
     { "source": "/bewerten", "destination": "/bewerten.html" },
     { "source": "/bewertungen", "destination": "/bewertungen.html" },

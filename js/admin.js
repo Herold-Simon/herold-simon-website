@@ -174,7 +174,6 @@
     await loadLayout();
     loadGallery();
     loadCourseSettings();
-    loadCourseList();
   }
 
   /* ---------- Login / Logout ---------- */
@@ -695,7 +694,6 @@
 
   /* ---------- Kurse: globale Einstellungen (Video + Werbetext) ---------- */
   var courseSettingsForm = qs("[data-course-settings-form]");
-  var courseListEl = qs("[data-course-list]");
 
   function updateVideoFields() {
     if (!courseSettingsForm) return;
@@ -773,70 +771,6 @@
 
     var promo = map.courses_promo_text;
     setPromo(promo && promo.html ? promo.html : "");
-  }
-
-  /* ---------- Kurse: Liste ---------- */
-  function courseStatusLabel(status) {
-    if (status === "active") return "Aktiv";
-    if (status === "past") return "Vergangen";
-    return "Entwurf";
-  }
-
-  async function loadCourseList() {
-    if (!courseListEl) return;
-    var res = await sb.from("courses").select("id,name,status,event_date,sort_order")
-      .order("status", { ascending: true })
-      .order("event_date", { ascending: false });
-    if (res.error) { courseListEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
-    var courses = res.data || [];
-    courseListEl.innerHTML = "";
-    if (!courses.length) {
-      courseListEl.innerHTML = "<p class=\"admin-block-sub\">Noch keine Kurse angelegt.</p>";
-      return;
-    }
-    courses.forEach(function (c) {
-      var row = document.createElement("div");
-      row.className = "admin-list-row";
-
-      var label = document.createElement("span");
-      label.className = "admin-list-name";
-      label.textContent = c.name || "(ohne Namen)";
-      row.appendChild(label);
-
-      var badge = document.createElement("span");
-      badge.className = "course-status-badge status-" + (c.status || "draft");
-      badge.textContent = courseStatusLabel(c.status);
-      row.appendChild(badge);
-
-      if (c.event_date) {
-        var date = document.createElement("span");
-        date.className = "admin-list-order";
-        date.textContent = c.event_date;
-        row.appendChild(date);
-      }
-
-      var editLink = document.createElement("a");
-      editLink.className = "btn btn-small";
-      editLink.textContent = "Öffnen";
-      editLink.href = "kurs-admin.html?id=" + encodeURIComponent(c.id);
-      row.appendChild(editLink);
-
-      var delBtn = document.createElement("button");
-      delBtn.className = "btn btn-small btn-danger";
-      delBtn.textContent = "Löschen";
-      delBtn.addEventListener("click", function () { deleteCourse(c); });
-      row.appendChild(delBtn);
-
-      courseListEl.appendChild(row);
-    });
-  }
-
-  async function deleteCourse(c) {
-    if (!window.confirm('Kurs "' + (c.name || "") + '" mit allen Bildern und Anmeldungen wirklich löschen?')) return;
-    var res = await sb.from("courses").delete().eq("id", c.id);
-    if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
-    await loadCourseList();
-    toast("Kurs gelöscht.", "success");
   }
 
   /* ---------- Passwort ändern ---------- */

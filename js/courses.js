@@ -154,9 +154,15 @@
     var meta = document.createElement("ul");
     meta.className = "course-meta";
     if (course.event_date) meta.appendChild(metaItem("Datum", formatDate(course.event_date) + (course.event_time ? ", " + course.event_time + " Uhr" : "")));
-    if (course.location) meta.appendChild(metaItem("Ort", course.location));
+    var place = formatPlace(course);
+    if (place) meta.appendChild(metaItem("Ort", place));
     if (course.price) meta.appendChild(metaItem("Preis", course.price));
     body.appendChild(meta);
+
+    // Teilnehmer-Anzeige (Live-Zähler)
+    var capacityEl = document.createElement("div");
+    capacityEl.className = "course-capacity";
+    body.appendChild(capacityEl);
 
     if (course.description) {
       var desc = document.createElement("div");
@@ -174,7 +180,32 @@
     card.appendChild(body);
     activeEl.appendChild(card);
 
+    renderCapacity(capacityEl, course, cta);
     if (images.length > 1) startSlideshow(show);
+  }
+
+  function renderCapacity(el, course, cta) {
+    sb.rpc("course_signup_count", { p_course_id: course.id }).then(function (res) {
+      var count = (res && typeof res.data === "number") ? res.data : 0;
+      var max = course.max_participants;
+      if (max && max > 0) {
+        var free = Math.max(0, max - count);
+        var pct = Math.min(100, Math.round((count / max) * 100));
+        var full = count >= max;
+        var bar = '<div class="course-capacity-bar"><span style="width:' + pct + '%"></span></div>';
+        var label = full
+          ? '<strong class="course-capacity-full">Ausgebucht</strong>'
+          : '<strong>' + count + " / " + max + " Plätzen belegt</strong> · noch " + free + " frei";
+        el.innerHTML = '<span class="course-capacity-label">' + label + "</span>" + bar;
+        if (full && cta) {
+          cta.classList.add("is-disabled");
+          cta.textContent = "Ausgebucht";
+          cta.removeAttribute("href");
+        }
+      } else {
+        el.innerHTML = '<span class="course-capacity-label"><strong>' + count + "</strong> Anmeldung" + (count === 1 ? "" : "en") + "</span>";
+      }
+    });
   }
 
   function metaItem(label, value) {
@@ -184,6 +215,14 @@
     li.appendChild(b);
     li.appendChild(document.createTextNode(value));
     return li;
+  }
+
+  function formatPlace(c) {
+    var line1 = [c.address_street, c.address_number].filter(Boolean).join(" ");
+    var line2 = [c.address_zip, c.address_city].filter(Boolean).join(" ");
+    var addr = [line1, line2].filter(Boolean).join(", ");
+    if (c.location && addr) return c.location + ", " + addr;
+    return c.location || addr || "";
   }
 
   function startSlideshow(container) {
@@ -273,32 +312,27 @@
 
   function loadMarquee() {
     if (!marqueeTrack || !marqueeSection) return;
-    Promise.all([
-      sb.from("reviews").select("id,text,stars,show_in_marquee,course_id").or("show_in_marquee.eq.true,stars.eq.5"),
-      sb.from("courses").select("id,name"),
-    ]).then(function (r) {
-      if (r[0].error) return;
-      var reviews = (r[0].data || []).filter(function (rv) {
-        if (rv.show_in_marquee) return true;
-        return rv.stars === 5 && rv.text && wordCount(rv.text) < 10;
-      });
-      if (!reviews.length) return;
-
-      var names = {};
-      (r[1].data || []).forEach(function (c) { names[c.id] = c.name; });
-
-      marqueeTrack.innerHTML = "";
-      // Karten zweimal einfügen für nahtlose Endlosschleife
-      [0, 1].forEach(function () {
-        reviews.forEach(function (rv) {
-          marqueeTrack.appendChild(buildReviewCard(rv, names[rv.course_id]));
+    sb.from("reviews").select("id,text,stars,show_in_marquee,author_name").or("show_in_marquee.eq.true,stars.eq.5")
+      .then(function (r) {
+        if (r.error) return;
+        var reviews = (r.data || []).filter(function (rv) {
+          if (rv.show_in_marquee) return true;
+          return rv.stars === 5 && rv.text && wordCount(rv.text) < 10;
         });
+        if (!reviews.length) return;
+
+        marqueeTrack.innerHTML = "";
+        // Karten zweimal einfügen für nahtlose Endlosschleife
+        [0, 1].forEach(function () {
+          reviews.forEach(function (rv) {
+            marqueeTrack.appendChild(buildReviewCard(rv));
+          });
+        });
+        marqueeSection.style.display = "";
       });
-      marqueeSection.style.display = "";
-    });
   }
 
-  function buildReviewCard(rv, courseName) {
+  function buildReviewCard(rv) {
     var card = document.createElement("div");
     card.className = "review-card";
     if (rv.stars) {
@@ -311,12 +345,10 @@
     text.className = "review-text";
     text.textContent = rv.text || "";
     card.appendChild(text);
-    if (courseName) {
-      var meta = document.createElement("span");
-      meta.className = "review-meta";
-      meta.textContent = courseName;
-      card.appendChild(meta);
-    }
+    var meta = document.createElement("span");
+    meta.className = "review-meta";
+    meta.textContent = rv.author_name ? "– " + rv.author_name : "– Teilnehmer/in";
+    card.appendChild(meta);
     return card;
   }
 

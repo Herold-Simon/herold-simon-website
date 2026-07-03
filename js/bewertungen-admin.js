@@ -1,4 +1,4 @@
-/* Kursübergreifende Bewertungs-Verwaltung. */
+/* Kursübergreifende Bewertungs-Verwaltung. Nutzt js/reviews-admin-shared.js. */
 (function () {
   var sb = window.SB.get();
 
@@ -8,6 +8,7 @@
   var filterEl = document.querySelector("[data-course-filter]");
   var listEl = document.querySelector("[data-all-reviews]");
   var addBtn = document.querySelector("[data-review-add]");
+  var statsEl = document.querySelector("[data-review-stats]");
 
   var courseNames = {};
   var courseList = [];
@@ -21,13 +22,6 @@
     toastEl.className = "admin-toast show" + (type ? " " + type : "");
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toastEl.className = "admin-toast"; }, 3000);
-  }
-
-  function starString(n) {
-    n = n || 0;
-    var out = "";
-    for (var i = 1; i <= 5; i++) out += i <= n ? "★" : "☆";
-    return out;
   }
 
   /* ---------- Init / Auth ---------- */
@@ -61,121 +55,47 @@
 
   if (filterEl) filterEl.addEventListener("change", loadReviews);
 
+  function ctx() {
+    return { sb: sb, toast: toast, reload: loadReviews, courseNames: courseNames };
+  }
+
   async function loadReviews() {
     listEl.innerHTML = "<p class=\"admin-block-sub\">Wird geladen …</p>";
     var q = sb.from("reviews").select("*").order("created_at", { ascending: false });
     if (filterEl.value) q = q.eq("course_id", filterEl.value);
     var res = await q;
     if (res.error) { listEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
-    renderRows(res.data || []);
+    var reviews = res.data || [];
+    renderStats(reviews);
+    window.ReviewCards.renderList(listEl, reviews, ctx());
   }
 
-  function renderRows(reviews) {
-    listEl.innerHTML = "";
-    if (!reviews.length) {
-      listEl.innerHTML = "<p class=\"admin-block-sub\">Keine Bewertungen.</p>";
-      return;
-    }
-    reviews.forEach(function (r) {
-      var row = document.createElement("div");
-      row.className = "review-admin-row";
-
-      var main = document.createElement("div");
-      main.className = "review-admin-main";
-      var stars = document.createElement("div");
-      stars.className = "review-stars";
-      stars.textContent = r.stars ? starString(r.stars) : "";
-      main.appendChild(stars);
-      var text = document.createElement("p");
-      text.className = "review-admin-text";
-      text.textContent = r.text || "(kein Text)";
-      main.appendChild(text);
-      var meta = document.createElement("span");
-      meta.className = "review-meta";
-      var parts = [];
-      if (r.author_name) parts.push(r.author_name);
-      if (courseNames[r.course_id]) parts.push(courseNames[r.course_id]);
-      if (r.created_at) parts.push(new Date(r.created_at).toLocaleDateString("de-DE"));
-      meta.textContent = parts.join(" · ");
-      main.appendChild(meta);
-      row.appendChild(main);
-
-      var controls = document.createElement("div");
-      controls.className = "review-admin-controls";
-      controls.appendChild(toggle("Auf Seite", r.show_on_page, function (val) {
-        return update(r.id, { show_on_page: val });
-      }));
-      controls.appendChild(toggle("Laufband", r.show_in_marquee, function (val) {
-        return update(r.id, { show_in_marquee: val });
-      }));
-      var del = document.createElement("button");
-      del.className = "btn btn-small btn-danger";
-      del.textContent = "Löschen";
-      del.addEventListener("click", async function () {
-        if (!window.confirm("Diese Bewertung löschen?")) return;
-        var dr = await sb.from("reviews").delete().eq("id", r.id);
-        if (dr.error) { toast("Fehler: " + dr.error.message, "error"); return; }
-        loadReviews();
-        toast("Bewertung gelöscht.", "success");
-      });
-      controls.appendChild(del);
-      row.appendChild(controls);
-
-      listEl.appendChild(row);
-    });
+  function renderStats(reviews) {
+    if (!statsEl) return;
+    var total = reviews.length;
+    var onPage = reviews.filter(function (r) { return r.show_on_page; }).length;
+    var marquee = reviews.filter(function (r) { return r.show_in_marquee; }).length;
+    var rated = reviews.filter(function (r) { return r.stars; });
+    var avg = rated.length ? (rated.reduce(function (s, r) { return s + r.stars; }, 0) / rated.length) : 0;
+    statsEl.innerHTML =
+      stat(total, "Bewertungen") +
+      stat(onPage, "auf der Seite") +
+      stat(marquee, "im Laufband") +
+      stat(avg ? avg.toFixed(1) + " ★" : "–", "Durchschnitt");
   }
-
-  async function update(id, patch) {
-    var up = await sb.from("reviews").update(patch).eq("id", id);
-    if (up.error) { toast("Fehler: " + up.error.message, "error"); return false; }
-    toast("Gespeichert.", "success");
-    return true;
-  }
-
-  function toggle(label, checked, onChange) {
-    var wrap = document.createElement("label");
-    wrap.className = "review-toggle";
-    var cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = !!checked;
-    cb.addEventListener("change", async function () {
-      var ok = await onChange(cb.checked);
-      if (ok === false) cb.checked = !cb.checked;
-    });
-    wrap.appendChild(cb);
-    wrap.appendChild(document.createTextNode(" " + label));
-    return wrap;
+  function stat(value, label) {
+    return '<div class="review-stat"><strong>' + value + "</strong><span>" + label + "</span></div>";
   }
 
   if (addBtn) {
     addBtn.addEventListener("click", function () {
       if (!courseList.length) { toast("Bitte zuerst einen Kurs anlegen.", "error"); return; }
-      var courseId = filterEl.value;
-      if (!courseId) {
-        var name = window.prompt("Zu welchem Kurs? Bitte genauen Namen eingeben:\n" + courseList.map(function (c) { return "- " + c.name; }).join("\n"));
-        if (!name) return;
-        var found = courseList.find(function (c) { return c.name === name.trim(); });
-        if (!found) { toast("Kurs nicht gefunden.", "error"); return; }
-        courseId = found.id;
-      }
-      var text = window.prompt("Bewertungstext:");
-      if (text === null) return;
-      var starsStr = window.prompt("Sterne (1-5, leer für keine):", "5");
-      if (starsStr === null) return;
-      var author = window.prompt("Name (optional):", "");
-      var stars = parseInt(starsStr, 10);
-      if (isNaN(stars) || stars < 1 || stars > 5) stars = null;
-      sb.from("reviews").insert({
-        course_id: courseId,
-        author_name: author ? author.trim() : null,
-        text: text.trim() || null,
-        stars: stars,
-        show_on_page: true,
-        show_in_marquee: false,
-      }).then(function (res) {
-        if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
-        loadReviews();
-        toast("Bewertung hinzugefügt.", "success");
+      window.ReviewCards.openAddForm({
+        sb: sb,
+        toast: toast,
+        reload: loadReviews,
+        courseList: courseList,
+        courseId: filterEl.value || (courseList[0] && courseList[0].id),
       });
     });
   }

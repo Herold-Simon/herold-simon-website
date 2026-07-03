@@ -11,7 +11,7 @@
 
   var activeCourse = null;
 
-  sb.from("courses").select("id,name").eq("status", "active").maybeSingle().then(function (res) {
+  sb.from("courses").select("id,name,max_participants").eq("status", "active").maybeSingle().then(function (res) {
     if (res.error) { console.error("Kurs laden:", res.error.message); }
     activeCourse = res.data || null;
     if (!activeCourse) {
@@ -21,7 +21,22 @@
       return;
     }
     if (nameOut) nameOut.textContent = activeCourse.name || "";
+    checkCapacity();
   });
+
+  function checkCapacity() {
+    if (!activeCourse || !activeCourse.max_participants || activeCourse.max_participants <= 0) return;
+    sb.rpc("course_signup_count", { p_course_id: activeCourse.id }).then(function (res) {
+      var count = (res && typeof res.data === "number") ? res.data : 0;
+      if (count >= activeCourse.max_participants) {
+        if (signupCard) signupCard.style.display = "none";
+        if (noCourse) {
+          noCourse.style.display = "";
+          noCourse.innerHTML = "<p>Dieser Kurs ist leider bereits <strong>ausgebucht</strong>. Bitte schauen Sie später wieder auf der <a href=\"kurse.html\">Kurse-Seite</a> vorbei.</p>";
+        }
+      }
+    });
+  }
 
   if (form) {
     form.addEventListener("submit", async function (e) {
@@ -30,14 +45,18 @@
       if (!activeCourse) { if (errEl) errEl.textContent = "Kein aktiver Kurs vorhanden."; return; }
 
       var name = form.name.value.trim();
-      var email = form.email.value.trim();
-      var phone = form.phone.value.trim();
+      var contact = form.contact.value.trim();
 
       if (!name) { if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen an."; return; }
-      if (!email && !phone) {
+      if (!contact) {
         if (errEl) errEl.textContent = "Bitte geben Sie eine E-Mail-Adresse oder Telefonnummer an.";
         return;
       }
+
+      // E-Mail vs. Telefon anhand des "@"-Zeichens unterscheiden
+      var isEmail = contact.indexOf("@") !== -1;
+      var email = isEmail ? contact : null;
+      var phone = isEmail ? null : contact;
 
       var btn = form.querySelector('button[type="submit"]');
       btn.disabled = true;
@@ -51,6 +70,7 @@
           phone: phone || null,
         });
         if (res.error) throw res.error;
+        try { sessionStorage.setItem("course_signup_name", name); } catch (e) { /* ignorieren */ }
         window.location.href = "kurs-erfolg.html";
       } catch (ex) {
         if (errEl) errEl.textContent = "Anmeldung fehlgeschlagen: " + (ex.message || ex);

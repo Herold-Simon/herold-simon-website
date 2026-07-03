@@ -53,14 +53,10 @@
             <input type="text" name="name" autocomplete="name" required>
           </label>
           <label class="course-field">
-            <span>E-Mail-Adresse</span>
-            <input type="email" name="email" autocomplete="email" placeholder="optional, wenn Telefon angegeben">
+            <span>E-Mail oder Telefonnummer</span>
+            <input type="text" name="contact" autocomplete="email" required placeholder="z. B. name@mail.de oder 0170 1234567">
           </label>
-          <label class="course-field">
-            <span>Telefonnummer</span>
-            <input type="tel" name="phone" autocomplete="tel" placeholder="optional, wenn E-Mail angegeben">
-          </label>
-          <p class="course-field-hint">Bitte geben Sie mindestens eine Kontaktmöglichkeit (E-Mail oder Telefon) an.</p>
+          <p class="course-field-hint">Geben Sie eine E-Mail-Adresse oder eine Telefonnummer an, damit wir Sie erreichen können.</p>
           <button type="submit" class="btn course-form-btn">Verbindlich anmelden</button>
           <p class="admin-error" data-signup-error></p>
         </form>

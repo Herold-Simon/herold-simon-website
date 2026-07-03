@@ -39,6 +39,45 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
+  /* ---------- Platzhalter im Verwendungszweck ---------- */
+  var placeholderInput = document.querySelector("[data-placeholder-input]");
+  var placeholderPreview = document.querySelector("[data-placeholder-preview]");
+
+  function updatePlaceholderPreview() {
+    if (!placeholderInput || !placeholderPreview) return;
+    var val = placeholderInput.value;
+    if (!val || val.indexOf("{name}") === -1) {
+      placeholderPreview.textContent = "";
+      return;
+    }
+    var example = val.replace(/\{\s*name\s*\}/gi, "Max Mustermann");
+    placeholderPreview.textContent = "Vorschau: " + example;
+  }
+
+  Array.prototype.slice.call(document.querySelectorAll("[data-insert-placeholder]")).forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      if (!placeholderInput) return;
+      var token = chip.getAttribute("data-insert-placeholder");
+      var start = placeholderInput.selectionStart;
+      var end = placeholderInput.selectionEnd;
+      if (typeof start === "number" && typeof end === "number") {
+        var before = placeholderInput.value.slice(0, start);
+        var after = placeholderInput.value.slice(end);
+        var needSpace = before && !/\s$/.test(before) ? " " : "";
+        placeholderInput.value = before + needSpace + token + after;
+        var pos = (before + needSpace + token).length;
+        placeholderInput.focus();
+        placeholderInput.setSelectionRange(pos, pos);
+      } else {
+        placeholderInput.value += (placeholderInput.value ? " " : "") + token;
+        placeholderInput.focus();
+      }
+      updatePlaceholderPreview();
+    });
+  });
+
+  if (placeholderInput) placeholderInput.addEventListener("input", updatePlaceholderPreview);
+
   /* ---------- Quill ---------- */
   var descQuill = new Quill("#course-desc-editor", {
     theme: "snow",
@@ -158,10 +197,16 @@
     courseForm.event_date.value = c.event_date || "";
     courseForm.event_time.value = c.event_time || "";
     courseForm.location.value = c.location || "";
+    courseForm.address_street.value = c.address_street || "";
+    courseForm.address_number.value = c.address_number || "";
+    courseForm.address_zip.value = c.address_zip || "";
+    courseForm.address_city.value = c.address_city || "";
     courseForm.price.value = c.price || "";
+    courseForm.max_participants.value = c.max_participants != null ? c.max_participants : "";
     courseForm.bank_recipient.value = c.bank_recipient || "";
     courseForm.iban.value = c.iban || "";
     courseForm.payment_reference.value = c.payment_reference || "";
+    updatePlaceholderPreview();
     setHtml(noteQuill, c.extra_note || "");
   }
 
@@ -183,7 +228,12 @@
       event_date: courseForm.event_date.value || null,
       event_time: courseForm.event_time.value.trim() || null,
       location: courseForm.location.value.trim() || null,
+      address_street: courseForm.address_street.value.trim() || null,
+      address_number: courseForm.address_number.value.trim() || null,
+      address_zip: courseForm.address_zip.value.trim() || null,
+      address_city: courseForm.address_city.value.trim() || null,
       price: courseForm.price.value.trim() || null,
+      max_participants: courseForm.max_participants.value ? parseInt(courseForm.max_participants.value, 10) : null,
       bank_recipient: courseForm.bank_recipient.value.trim() || null,
       iban: courseForm.iban.value.trim() || null,
       payment_reference: courseForm.payment_reference.value.trim() || null,
@@ -818,20 +868,39 @@
   }
 
   /* ---------- QR-Code ---------- */
+  // Erzeugt einen QR-Code als PNG und lädt ihn herunter (qrcodejs / davidshimjs)
+  function downloadQr(text, filename) {
+    if (typeof QRCode === "undefined") { toast("QR-Bibliothek nicht geladen.", "error"); return; }
+    var holder = document.createElement("div");
+    try {
+      new QRCode(holder, {
+        text: text,
+        width: 600,
+        height: 600,
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    } catch (e) { toast("QR-Code Fehler: " + (e.message || e), "error"); return; }
+    // Das Canvas wird ggf. minimal verzögert gezeichnet
+    setTimeout(function () {
+      var url = null;
+      var canvas = holder.querySelector("canvas");
+      if (canvas) url = canvas.toDataURL("image/png");
+      else { var img = holder.querySelector("img"); url = img ? img.src : null; }
+      if (!url) { toast("QR-Code konnte nicht erzeugt werden.", "error"); return; }
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+    }, 80);
+  }
+
   var quizQrBtn = document.querySelector("[data-quiz-qr]");
   var quizQrHint = document.querySelector("[data-quiz-qrhint]");
   if (quizQrBtn) {
     var quizUrl = window.location.origin + "/quiz";
     if (quizQrHint) quizQrHint.textContent = "QR-Code verweist auf: " + quizUrl + " (zeigt immer das Quiz des aktiven Kurses).";
     quizQrBtn.addEventListener("click", function () {
-      if (typeof QRCode === "undefined") { toast("QR-Bibliothek nicht geladen.", "error"); return; }
-      QRCode.toDataURL(quizUrl, { width: 600, margin: 2 }, function (err, url) {
-        if (err) { toast("QR-Code Fehler: " + err, "error"); return; }
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = "quiz-qr-code.png";
-        a.click();
-      });
+      downloadQr(quizUrl, "quiz-qr-code.png");
     });
   }
 
@@ -856,6 +925,19 @@
     subs.forEach(function (s) { (byQuestion[s.question_id] = byQuestion[s.question_id] || []).push(s); });
 
     resultsEl.innerHTML = "";
+
+    // Gesamt-Übersicht
+    var totalAnswers = subs.length;
+    var totalCorrect = subs.filter(function (s) { return s.is_correct; }).length;
+    var overallPct = totalAnswers ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+    var stats = document.createElement("div");
+    stats.className = "review-stats";
+    stats.innerHTML =
+      resStat(questions.length, "Fragen") +
+      resStat(totalAnswers, "Antworten gesamt") +
+      resStat(overallPct + "%", "richtig gesamt");
+    resultsEl.appendChild(stats);
+
     questions.forEach(function (q, idx) {
       var qs = byQuestion[q.id] || [];
       var total = qs.length;
@@ -865,13 +947,20 @@
       var block = document.createElement("div");
       block.className = "quiz-result-block";
 
+      var head = document.createElement("div");
+      head.className = "quiz-result-head";
       var h = document.createElement("h4");
       h.textContent = "Frage " + (idx + 1) + ": " + (q.question_text || "(ohne Text)");
-      block.appendChild(h);
+      head.appendChild(h);
+      var badge = document.createElement("span");
+      badge.className = "quiz-result-badge " + (pct >= 70 ? "good" : pct >= 40 ? "mid" : "low");
+      badge.textContent = total ? pct + "% richtig" : "keine Antworten";
+      head.appendChild(badge);
+      block.appendChild(head);
 
       var summary = document.createElement("p");
       summary.className = "quiz-result-summary";
-      summary.textContent = total + " Antwort(en) · " + pct + "% richtig";
+      summary.textContent = total + " Antwort(en) · " + correctCount + " richtig";
       block.appendChild(summary);
 
       var counts = {};
@@ -889,16 +978,24 @@
         var bar = document.createElement("div");
         bar.className = "quiz-result-bar";
         bar.style.width = share + "%";
+        li.appendChild(bar);
         var lbl = document.createElement("span");
         lbl.className = "quiz-result-label";
-        lbl.textContent = (a.correct ? "✓ " : "") + (a.text || "") + " — " + n + " (" + share + "%)";
-        li.appendChild(bar);
+        lbl.textContent = (a.correct ? "✓ " : "") + (a.text || "");
         li.appendChild(lbl);
+        var num = document.createElement("span");
+        num.className = "quiz-result-num";
+        num.textContent = n + " (" + share + "%)";
+        li.appendChild(num);
         ul.appendChild(li);
       });
       block.appendChild(ul);
       resultsEl.appendChild(block);
     });
+  }
+
+  function resStat(value, label) {
+    return '<div class="review-stat"><strong>' + value + "</strong><span>" + label + "</span></div>";
   }
 
   /* ============================================================
@@ -1027,141 +1124,28 @@
     var bewertenUrl = window.location.origin + "/bewerten";
     if (rqQrHint) rqQrHint.textContent = "QR-Code verweist auf: " + bewertenUrl + " (Bewertung des aktiven Kurses).";
     rqQrBtn.addEventListener("click", function () {
-      if (typeof QRCode === "undefined") { toast("QR-Bibliothek nicht geladen.", "error"); return; }
-      QRCode.toDataURL(bewertenUrl, { width: 600, margin: 2 }, function (err, url) {
-        if (err) { toast("QR-Code Fehler: " + err, "error"); return; }
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = "bewertung-qr-code.png";
-        a.click();
-      });
+      downloadQr(bewertenUrl, "bewertung-qr-code.png");
     });
   }
 
-  /* ---------- Bewertungen dieses Kurses ---------- */
+  /* ---------- Bewertungen dieses Kurses (gemeinsames Modul) ---------- */
+  function reviewCtx() {
+    return { sb: sb, toast: toast, reload: loadCourseReviews, courseId: currentCourse ? currentCourse.id : null };
+  }
+
   async function loadCourseReviews() {
     if (!currentCourse || !courseReviewsEl) return;
     courseReviewsEl.innerHTML = "<p class=\"admin-block-sub\">Wird geladen …</p>";
     var res = await sb.from("reviews").select("*").eq("course_id", currentCourse.id).order("created_at", { ascending: false });
     if (res.error) { courseReviewsEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }
-    renderReviewRows(courseReviewsEl, res.data || [], loadCourseReviews, {});
+    window.ReviewCards.renderList(courseReviewsEl, res.data || [], reviewCtx());
   }
 
   var reviewAddBtn = document.querySelector("[data-review-add]");
   if (reviewAddBtn) {
     reviewAddBtn.addEventListener("click", function () {
       if (!currentCourse) return;
-      openReviewDialog(currentCourse.id, loadCourseReviews);
-    });
-  }
-
-  /* ---------- gemeinsame Renderer/Dialoge (auch für bewertungen-admin) ---------- */
-  window.ReviewsAdmin = window.ReviewsAdmin || {};
-  window.ReviewsAdmin.render = renderReviewRows;
-  window.ReviewsAdmin.dialog = openReviewDialog;
-
-  function starString(n) {
-    n = n || 0;
-    var out = "";
-    for (var i = 1; i <= 5; i++) out += i <= n ? "★" : "☆";
-    return out;
-  }
-
-  function renderReviewRows(container, reviews, reload, courseNames) {
-    container.innerHTML = "";
-    if (!reviews.length) {
-      container.innerHTML = "<p class=\"admin-block-sub\">Noch keine Bewertungen.</p>";
-      return;
-    }
-    reviews.forEach(function (r) {
-      var row = document.createElement("div");
-      row.className = "review-admin-row";
-
-      var main = document.createElement("div");
-      main.className = "review-admin-main";
-      var stars = document.createElement("div");
-      stars.className = "review-stars";
-      stars.textContent = r.stars ? starString(r.stars) : "";
-      main.appendChild(stars);
-      var text = document.createElement("p");
-      text.className = "review-admin-text";
-      text.textContent = r.text || "(kein Text)";
-      main.appendChild(text);
-      var meta = document.createElement("span");
-      meta.className = "review-meta";
-      var parts = [];
-      if (r.author_name) parts.push(r.author_name);
-      if (courseNames && courseNames[r.course_id]) parts.push(courseNames[r.course_id]);
-      if (r.created_at) parts.push(new Date(r.created_at).toLocaleDateString("de-DE"));
-      meta.textContent = parts.join(" · ");
-      main.appendChild(meta);
-      row.appendChild(main);
-
-      var controls = document.createElement("div");
-      controls.className = "review-admin-controls";
-
-      controls.appendChild(toggle("Auf Seite", r.show_on_page, async function (val) {
-        var up = await sb.from("reviews").update({ show_on_page: val }).eq("id", r.id);
-        if (up.error) { toast("Fehler: " + up.error.message, "error"); return false; }
-        toast("Gespeichert.", "success"); return true;
-      }));
-      controls.appendChild(toggle("Laufband", r.show_in_marquee, async function (val) {
-        var up = await sb.from("reviews").update({ show_in_marquee: val }).eq("id", r.id);
-        if (up.error) { toast("Fehler: " + up.error.message, "error"); return false; }
-        toast("Gespeichert.", "success"); return true;
-      }));
-
-      var del = document.createElement("button");
-      del.className = "btn btn-small btn-danger";
-      del.textContent = "Löschen";
-      del.addEventListener("click", async function () {
-        if (!window.confirm("Diese Bewertung löschen?")) return;
-        var dr = await sb.from("reviews").delete().eq("id", r.id);
-        if (dr.error) { toast("Fehler: " + dr.error.message, "error"); return; }
-        reload();
-        toast("Bewertung gelöscht.", "success");
-      });
-      controls.appendChild(del);
-
-      row.appendChild(controls);
-      container.appendChild(row);
-    });
-  }
-
-  function toggle(label, checked, onChange) {
-    var wrap = document.createElement("label");
-    wrap.className = "review-toggle";
-    var cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = !!checked;
-    cb.addEventListener("change", async function () {
-      var ok = await onChange(cb.checked);
-      if (ok === false) cb.checked = !cb.checked;
-    });
-    wrap.appendChild(cb);
-    wrap.appendChild(document.createTextNode(" " + label));
-    return wrap;
-  }
-
-  function openReviewDialog(courseId, reload) {
-    var text = window.prompt("Bewertungstext:");
-    if (text === null) return;
-    var starsStr = window.prompt("Sterne (1-5, leer lassen für keine):", "5");
-    if (starsStr === null) return;
-    var author = window.prompt("Name (optional):", "");
-    var stars = parseInt(starsStr, 10);
-    if (isNaN(stars) || stars < 1 || stars > 5) stars = null;
-    sb.from("reviews").insert({
-      course_id: courseId,
-      author_name: author ? author.trim() : null,
-      text: text.trim() || null,
-      stars: stars,
-      show_on_page: true,
-      show_in_marquee: false,
-    }).then(function (res) {
-      if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
-      reload();
-      toast("Bewertung hinzugefügt.", "success");
+      window.ReviewCards.openAddForm(reviewCtx());
     });
   }
 })();

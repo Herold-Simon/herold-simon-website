@@ -67,13 +67,34 @@
                 <label>Uhrzeit
                   <input type="text" name="event_time" placeholder="z. B. 14:00">
                 </label>
-                <label>Ort
-                  <input type="text" name="location" placeholder="z. B. Landgut Moralthof">
-                </label>
                 <label>Preis
                   <input type="text" name="price" placeholder="z. B. 120 €">
                 </label>
+                <label>Max. Teilnehmer
+                  <input type="number" name="max_participants" min="1" placeholder="z. B. 20 (leer = unbegrenzt)">
+                </label>
               </div>
+
+              <fieldset class="admin-address">
+                <legend>Veranstaltungsort</legend>
+                <label>Name des Orts (optional)
+                  <input type="text" name="location" placeholder="z. B. Landgut Moralthof">
+                </label>
+                <div class="admin-address-grid">
+                  <label class="addr-street">Straße
+                    <input type="text" name="address_street" placeholder="z. B. Hauptstraße">
+                  </label>
+                  <label class="addr-number">Hausnr.
+                    <input type="text" name="address_number" placeholder="z. B. 12a">
+                  </label>
+                  <label class="addr-zip">PLZ
+                    <input type="text" name="address_zip" placeholder="z. B. 12345">
+                  </label>
+                  <label class="addr-city">Stadt
+                    <input type="text" name="address_city" placeholder="z. B. Musterstadt">
+                  </label>
+                </div>
+              </fieldset>
 
               <h3 class="admin-subhead">Zahlungsdaten</h3>
               <div class="admin-form-grid">
@@ -84,7 +105,14 @@
                   <input type="text" name="iban" placeholder="DE.. .. ..">
                 </label>
                 <label class="admin-field-wide">Verwendungszweck
-                  <input type="text" name="payment_reference" placeholder="z. B. Kurs Akupunktur + Ihr Name">
+                  <input type="text" name="payment_reference" placeholder="z. B. Kurs Akupunktur {name}" data-placeholder-input>
+                  <span class="placeholder-hint">
+                    <span class="placeholder-hint-text">Platzhalter einfügen:</span>
+                    <button type="button" class="placeholder-chip" data-insert-placeholder="{name}">
+                      <span class="placeholder-chip-icon">+</span> Name des Teilnehmers
+                    </button>
+                  </span>
+                  <span class="placeholder-preview" data-placeholder-preview></span>
                 </label>
               </div>
 
@@ -195,9 +223,10 @@
   <div class="admin-toast" data-toast></div>
 
   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
+  <script src="js/reviews-admin-shared.js"></script>
   <script src="js/kurs-admin.js"></script>
 </body>
 </html>
