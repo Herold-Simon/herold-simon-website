@@ -149,6 +149,12 @@
     edit.href = "kurs-admin.html?id=" + encodeURIComponent(c.id);
     actionRow.appendChild(edit);
 
+    var dup = document.createElement("button");
+    dup.className = "btn btn-small btn-outline";
+    dup.textContent = "Duplizieren";
+    dup.addEventListener("click", function () { duplicateCourse(c, dup); });
+    actionRow.appendChild(dup);
+
     var del = document.createElement("button");
     del.className = "btn btn-small btn-danger";
     del.textContent = "Löschen";
@@ -177,6 +183,80 @@
     } catch (ex) {
       toast("Fehler: " + (ex.message || ex), "error");
       cb.checked = !cb.checked;
+    }
+  }
+
+  /* ---------- Kurs duplizieren ---------- */
+  function storagePath(url) {
+    var marker = "/storage/v1/object/public/courses/";
+    var idx = (url || "").indexOf(marker);
+    if (idx === -1) return null;
+    return decodeURIComponent(url.slice(idx + marker.length));
+  }
+
+  async function copyStorageFile(url) {
+    var p = storagePath(url);
+    if (!p) return url; // externe URL (z. B. YouTube-Embed) unverändert lassen
+    var ext = (p.split(".").pop() || "jpg").toLowerCase();
+    var dest = Date.now() + "_" + Math.random().toString(36).slice(2) + "." + ext;
+    var cp = await sb.storage.from("courses").copy(p, dest);
+    if (cp.error) return url; // Fallback: gleiche Datei referenzieren
+    return sb.storage.from("courses").getPublicUrl(dest).data.publicUrl;
+  }
+
+  async function duplicateCourse(c, btn) {
+    if (!window.confirm('Kurs "' + (c.name || "") + '" duplizieren?\n\nEigenschaften, Bilder sowie Quiz- und Bewertungsfragen werden kopiert (ohne Anmeldungen und abgegebene Antworten/Bewertungen).')) return;
+    if (btn) { btn.disabled = true; btn.textContent = "Kopiere …"; }
+    try {
+      // 1) Kurs-Eigenschaften kopieren
+      var src = await sb.from("courses").select("*").eq("id", c.id).single();
+      if (src.error) throw src.error;
+      var copy = Object.assign({}, src.data);
+      delete copy.id;
+      delete copy.created_at;
+      delete copy.updated_at;
+      copy.status = "draft";
+      copy.name = (copy.name || "Kurs") + " (Kopie)";
+      var ins = await sb.from("courses").insert(copy).select("id").single();
+      if (ins.error) throw ins.error;
+      var newId = ins.data.id;
+
+      // 2) Bilder kopieren (eigene Datei-Kopien)
+      var imgs = await sb.from("course_images").select("image_url,sort_order").eq("course_id", c.id).order("sort_order", { ascending: true });
+      var newImgs = await Promise.all((imgs.data || []).map(async function (im) {
+        return { course_id: newId, image_url: await copyStorageFile(im.image_url), sort_order: im.sort_order };
+      }));
+      if (newImgs.length) {
+        var iRes = await sb.from("course_images").insert(newImgs);
+        if (iRes.error) throw iRes.error;
+      }
+
+      // 3) Quizfragen kopieren (Medien als eigene Kopien)
+      var qs = await sb.from("quiz_questions").select("question_text,media_type,media_url,answers,sort_order").eq("course_id", c.id).order("sort_order", { ascending: true });
+      var newQs = await Promise.all((qs.data || []).map(async function (q) {
+        var mu = q.media_url;
+        if ((q.media_type === "image" || q.media_type === "video_file") && mu) mu = await copyStorageFile(mu);
+        return { course_id: newId, question_text: q.question_text, media_type: q.media_type, media_url: mu, answers: q.answers, sort_order: q.sort_order };
+      }));
+      if (newQs.length) {
+        var qRes = await sb.from("quiz_questions").insert(newQs);
+        if (qRes.error) throw qRes.error;
+      }
+
+      // 4) Bewertungsfragen kopieren
+      var rq = await sb.from("review_questions").select("question_text,allow_stars,sort_order").eq("course_id", c.id).order("sort_order", { ascending: true });
+      if (rq.data && rq.data.length) {
+        var rRes = await sb.from("review_questions").insert(rq.data.map(function (x) {
+          return { course_id: newId, question_text: x.question_text, allow_stars: x.allow_stars, sort_order: x.sort_order };
+        }));
+        if (rRes.error) throw rRes.error;
+      }
+
+      loadCourses();
+      toast("Kurs dupliziert.", "success");
+    } catch (ex) {
+      toast("Fehler beim Duplizieren: " + (ex.message || ex), "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Duplizieren"; }
     }
   }
 
