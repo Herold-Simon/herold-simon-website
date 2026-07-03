@@ -2411,11 +2411,26 @@ body.page-donate #paypal-button-container > div + div {
 .course-card-meta { color: var(--grey); font-size: 0.95rem; font-weight: 600; }
 .course-card-actions {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.8rem;
   margin-top: auto;
-  padding-top: 0.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--grey-light);
+}
+.course-card-status-row {
+  display: flex;
+  align-items: center;
+}
+.course-card-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.course-card-btns .btn {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  border: 2px solid transparent;
 }
 
 /* Umschalter (Switch) */

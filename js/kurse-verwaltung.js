@@ -123,10 +123,12 @@
     meta.textContent = parts.join(" · ");
     body.appendChild(meta);
 
-    // Aktiv-Umschalter
     var actionRow = document.createElement("div");
     actionRow.className = "course-card-actions";
 
+    // Status-Zeile mit Aktiv-Umschalter
+    var statusRow = document.createElement("div");
+    statusRow.className = "course-card-status-row";
     var sw = document.createElement("label");
     sw.className = "switch";
     var cb = document.createElement("input");
@@ -139,27 +141,42 @@
     sw.appendChild(slider);
     var swText = document.createElement("span");
     swText.className = "switch-label";
-    swText.textContent = "Aktiv";
+    swText.textContent = c.status === "active" ? "Aktiv" : "Als aktiv setzen";
     sw.appendChild(swText);
-    actionRow.appendChild(sw);
+    statusRow.appendChild(sw);
+    actionRow.appendChild(statusRow);
+
+    // Button-Raster
+    var btns = document.createElement("div");
+    btns.className = "course-card-btns";
 
     var edit = document.createElement("a");
     edit.className = "btn btn-small";
     edit.textContent = "Bearbeiten";
     edit.href = "kurs-admin.html?id=" + encodeURIComponent(c.id);
-    actionRow.appendChild(edit);
+    btns.appendChild(edit);
 
     var dup = document.createElement("button");
     dup.className = "btn btn-small btn-outline";
     dup.textContent = "Duplizieren";
     dup.addEventListener("click", function () { duplicateCourse(c, dup); });
-    actionRow.appendChild(dup);
+    btns.appendChild(dup);
+
+    if (c.status !== "past") {
+      var past = document.createElement("button");
+      past.className = "btn btn-small btn-outline";
+      past.textContent = "Als vergangen";
+      past.addEventListener("click", function () { markPast(c, past); });
+      btns.appendChild(past);
+    }
 
     var del = document.createElement("button");
     del.className = "btn btn-small btn-danger";
     del.textContent = "Löschen";
     del.addEventListener("click", function () { deleteCourse(c); });
-    actionRow.appendChild(del);
+    btns.appendChild(del);
+
+    actionRow.appendChild(btns);
 
     body.appendChild(actionRow);
     card.appendChild(body);
@@ -183,6 +200,38 @@
     } catch (ex) {
       toast("Fehler: " + (ex.message || ex), "error");
       cb.checked = !cb.checked;
+    }
+  }
+
+  /* ---------- Kurs als vergangen markieren ---------- */
+  async function deleteQuizMedia(cId) {
+    var res = await sb.from("quiz_questions").select("id,media_type,media_url").eq("course_id", cId);
+    if (res.error) return;
+    var paths = [];
+    (res.data || []).forEach(function (q) {
+      if ((q.media_type === "image" || q.media_type === "video_file") && q.media_url) {
+        var p = storagePath(q.media_url);
+        if (p) paths.push(p);
+      }
+    });
+    if (paths.length) {
+      try { await sb.storage.from("courses").remove(paths); } catch (e) { /* ignorieren */ }
+    }
+    await sb.from("quiz_questions").update({ media_type: "none", media_url: null }).eq("course_id", cId).in("media_type", ["image", "video_file"]);
+  }
+
+  async function markPast(c, btn) {
+    if (!window.confirm('Kurs "' + (c.name || "") + '" als vergangen markieren?\n\nDie Quiz-Bilder/Videos dieses Kurses werden dabei gelöscht.')) return;
+    if (btn) { btn.disabled = true; btn.textContent = "Wird gesetzt …"; }
+    try {
+      await deleteQuizMedia(c.id);
+      var res = await sb.from("courses").update({ status: "past", updated_at: new Date().toISOString() }).eq("id", c.id);
+      if (res.error) throw res.error;
+      loadCourses();
+      toast("Kurs als vergangen markiert.", "success");
+    } catch (ex) {
+      toast("Fehler: " + (ex.message || ex), "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Als vergangen"; }
     }
   }
 
