@@ -2153,11 +2153,11 @@ body.page-donate #paypal-button-container > div + div {
   align-content: start;
   min-height: 0;
 }
-/* Bild-Kasten bleibt quadratisch, unabhängig von der Höhe des Frageblocks */
+/* Bild-Kasten: Höhe = Höhe des Frageblocks, quadratisch */
 [data-view="results"]:fullscreen .quiz-result-media {
-  align-self: flex-start;
-  width: 38%;
-  max-width: 260px;
+  align-self: stretch;
+  width: auto;
+  max-width: none;
   aspect-ratio: 1 / 1;
 }
 /* Statistik-Karten: kompakt oben links, Breite passt sich dem Text an */
@@ -2176,8 +2176,20 @@ body.page-donate #paypal-button-container > div + div {
 }
 [data-view="results"]:fullscreen [data-quiz-results] .review-stat strong { font-size: 1.2rem; }
 [data-view="results"]:fullscreen [data-quiz-results] .review-stat span { font-size: 0.8rem; }
+/* Jede Frage in einer eigenen Karte mit blauem Rand (Bild + Frage gruppiert) */
 [data-view="results"]:fullscreen .quiz-result-row {
   margin-bottom: 0;
+  padding: 1rem;
+  border: 2px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow-soft);
+}
+[data-view="results"]:fullscreen .quiz-result-block {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0.2rem 0.4rem;
 }
 
 /* Auto-Aktualisierung: Countdown-Ring */
