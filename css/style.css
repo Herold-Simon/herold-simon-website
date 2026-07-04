@@ -2147,11 +2147,18 @@ body.page-donate #paypal-button-container > div + div {
 [data-view="results"]:fullscreen [data-quiz-results] {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
   grid-auto-rows: min-content;
-  gap: 1.1rem;
+  gap: 2.4rem;
   align-content: start;
   min-height: 0;
+}
+/* Bild-Kasten bleibt quadratisch, unabhängig von der Höhe des Frageblocks */
+[data-view="results"]:fullscreen .quiz-result-media {
+  align-self: flex-start;
+  width: 38%;
+  max-width: 260px;
+  aspect-ratio: 1 / 1;
 }
 /* Statistik-Karten: kompakt oben links, Breite passt sich dem Text an */
 [data-view="results"]:fullscreen [data-quiz-results] .review-stats {
