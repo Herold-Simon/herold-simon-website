@@ -19,10 +19,15 @@
     return url;
   }
 
-  sb.from("courses").select("id,name").eq("status", "active").maybeSingle().then(function (res) {
+  sb.from("courses").select("id,name,signup_open").eq("status", "active").maybeSingle().then(function (res) {
     var course = res.data;
     if (!course) {
       listEl.innerHTML = "<p class=\"course-empty\">Zurzeit ist kein Kurs aktiv – es gibt gerade kein Quiz.</p>";
+      if (courseEl) courseEl.style.display = "none";
+      return;
+    }
+    if (course.signup_open !== false) {
+      listEl.innerHTML = "<p class=\"course-empty\">Das Quiz ist erst verfügbar, sobald die Anmeldung zum Kurs geschlossen ist.</p>";
       if (courseEl) courseEl.style.display = "none";
       return;
     }

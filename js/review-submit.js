@@ -22,12 +22,22 @@
     return s.split(/\s+/).length;
   }
 
-  sb.from("courses").select("id,name").eq("status", "active").maybeSingle().then(function (res) {
+  sb.from("courses").select("id,name,signup_open").eq("status", "active").maybeSingle().then(function (res) {
     activeCourse = res.data || null;
     if (!activeCourse) {
       if (form) form.style.display = "none";
       if (courseEl) courseEl.style.display = "none";
       if (noneEl) noneEl.style.display = "";
+      return;
+    }
+    if (activeCourse.signup_open !== false) {
+      activeCourse = null;
+      if (form) form.style.display = "none";
+      if (courseEl) courseEl.style.display = "none";
+      if (noneEl) {
+        noneEl.style.display = "";
+        noneEl.innerHTML = "<p>Die Bewertung ist erst verfügbar, sobald die Anmeldung zum Kurs geschlossen ist.</p>";
+      }
       return;
     }
     if (courseEl) courseEl.textContent = activeCourse.name || "";
