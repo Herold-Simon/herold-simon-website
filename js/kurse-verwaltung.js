@@ -51,6 +51,7 @@
 
   async function loadCourses() {
     var res = await sb.from("courses").select("*")
+      .neq("status", "site_quiz")
       .order("status", { ascending: true })
       .order("event_date", { ascending: false });
     if (res.error) { cardsEl.innerHTML = "<p>Fehler beim Laden.</p>"; return; }

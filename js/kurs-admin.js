@@ -18,6 +18,7 @@
   var regsEl = document.querySelector("[data-registrations]");
 
   var courseId = new URLSearchParams(window.location.search).get("id");
+  var siteQuizMode = new URLSearchParams(window.location.search).get("sitequiz") === "1";
   var currentCourse = null;
   var imagesCache = [];
   var dragCell = null;
@@ -78,6 +79,24 @@
 
   if (placeholderInput) placeholderInput.addEventListener("input", updatePlaceholderPreview);
 
+  /* ---------- Datumsmodus (Zeitpunkt / nur Datum / Zeitspanne) ---------- */
+  var dateModeSel = document.querySelector("[data-date-mode]");
+  function applyDateMode() {
+    if (!dateModeSel) return;
+    var mode = dateModeSel.value || "datetime";
+    var show = {
+      start_date: true,
+      start_time: mode !== "date",
+      end_date: mode === "range",
+      end_time: mode === "range",
+    };
+    Array.prototype.slice.call(document.querySelectorAll("[data-df]")).forEach(function (el) {
+      el.style.display = show[el.getAttribute("data-df")] ? "" : "none";
+    });
+  }
+  if (dateModeSel) dateModeSel.addEventListener("change", applyDateMode);
+  applyDateMode();
+
   /* ---------- Quill ---------- */
   var descQuill = new Quill("#course-desc-editor", {
     theme: "snow",
@@ -119,7 +138,9 @@
     adminView.style.display = "";
     if (logoutLink) logoutLink.style.display = "";
 
-    if (courseId) {
+    if (siteQuizMode) {
+      await initSiteQuiz();
+    } else if (courseId) {
       await loadCourse();
     } else {
       titleEl.textContent = "Neuer Kurs";
@@ -127,6 +148,41 @@
       setViewEnabled(false);
     }
   })();
+
+  /* ---------- Website-Quiz-Modus (kursunabhängiges Quiz) ---------- */
+  function applySiteQuizMode() {
+    ["props", "reviews", "users"].forEach(function (v) {
+      var b = document.querySelector('[data-view-btn="' + v + '"]');
+      if (b) b.style.display = "none";
+      var s = document.querySelector('[data-view="' + v + '"]');
+      if (s) s.hidden = true;
+    });
+    var qr = document.querySelector("[data-quiz-qr]");
+    if (qr) qr.style.display = "none";
+    var qrHint = document.querySelector("[data-quiz-qrhint]");
+    if (qrHint) qrHint.textContent = "";
+    var back = document.querySelector('.admin-header .main-nav a[href="kurse-verwaltung.html"]');
+    if (back) { back.textContent = "\u2190 Übersicht"; back.setAttribute("href", "admin.html"); }
+  }
+
+  async function initSiteQuiz() {
+    applySiteQuizMode();
+    var res = await sb.from("courses").select("*").eq("status", "site_quiz").order("created_at", { ascending: true }).limit(1);
+    if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
+    var course = (res.data || [])[0];
+    if (!course) {
+      var ins = await sb.from("courses").insert({ name: "Website-Quiz", status: "site_quiz" }).select().single();
+      if (ins.error) { toast("Fehler beim Anlegen: " + ins.error.message, "error"); return; }
+      course = ins.data;
+    }
+    currentCourse = course;
+    courseId = course.id;
+    titleEl.textContent = "Website-Quiz";
+    statusLineEl.textContent = "Dieses Quiz erscheint auf der Kurse-Seite (sofern im Admin-Bereich aktiviert).";
+    setViewEnabled(true);
+    var quizBtn = document.querySelector('[data-view-btn="quiz"]');
+    if (quizBtn) quizBtn.click();
+  }
 
   if (logoutLink) {
     logoutLink.addEventListener("click", async function (e) {
@@ -195,8 +251,12 @@
   function fillForm(c) {
     courseForm.name.value = c.name || "";
     setHtml(descQuill, c.description || "");
+    if (courseForm.date_mode) courseForm.date_mode.value = c.date_mode || "datetime";
     courseForm.event_date.value = c.event_date || "";
     courseForm.event_time.value = c.event_time || "";
+    if (courseForm.event_end_date) courseForm.event_end_date.value = c.event_end_date || "";
+    if (courseForm.event_end_time) courseForm.event_end_time.value = c.event_end_time || "";
+    applyDateMode();
     courseForm.location.value = c.location || "";
     courseForm.address_street.value = c.address_street || "";
     courseForm.address_number.value = c.address_number || "";
@@ -205,6 +265,7 @@
     courseForm.price.value = c.price || "";
     courseForm.max_participants.value = c.max_participants != null ? c.max_participants : "";
     if (courseForm.signup_open) courseForm.signup_open.checked = c.signup_open !== false;
+    if (courseForm.ask_prior_knowledge) courseForm.ask_prior_knowledge.checked = !!c.ask_prior_knowledge;
     courseForm.bank_recipient.value = c.bank_recipient || "";
     courseForm.iban.value = c.iban || "";
     courseForm.payment_reference.value = c.payment_reference || "";
@@ -224,11 +285,15 @@
     btn.disabled = true;
     btn.textContent = "Speichern …";
 
+    var mode = courseForm.date_mode ? courseForm.date_mode.value : "datetime";
     var row = {
       name: name,
       description: getHtml(descQuill),
+      date_mode: mode,
       event_date: courseForm.event_date.value || null,
-      event_time: courseForm.event_time.value.trim() || null,
+      event_time: mode === "date" ? null : (courseForm.event_time.value.trim() || null),
+      event_end_date: mode === "range" ? (courseForm.event_end_date.value || null) : null,
+      event_end_time: mode === "range" ? (courseForm.event_end_time.value.trim() || null) : null,
       location: courseForm.location.value.trim() || null,
       address_street: courseForm.address_street.value.trim() || null,
       address_number: courseForm.address_number.value.trim() || null,
@@ -237,6 +302,7 @@
       price: courseForm.price.value.trim() || null,
       max_participants: courseForm.max_participants.value ? parseInt(courseForm.max_participants.value, 10) : null,
       signup_open: courseForm.signup_open ? courseForm.signup_open.checked : true,
+      ask_prior_knowledge: courseForm.ask_prior_knowledge ? courseForm.ask_prior_knowledge.checked : false,
       bank_recipient: courseForm.bank_recipient.value.trim() || null,
       iban: courseForm.iban.value.trim() || null,
       payment_reference: courseForm.payment_reference.value.trim() || null,
@@ -452,10 +518,11 @@
     var regs = res.data || [];
     if (!regs.length) { regsEl.innerHTML = "<p class=\"admin-block-sub\">Noch keine Anmeldungen.</p>"; return; }
 
+    var askPrior = !!(currentCourse && currentCourse.ask_prior_knowledge);
     var table = document.createElement("table");
     table.className = "kurs-users-table";
     var thead = document.createElement("thead");
-    thead.innerHTML = "<tr><th>Name</th><th>Kontakt</th><th>Angemeldet</th><th>Bezahlt</th><th></th></tr>";
+    thead.innerHTML = "<tr><th>Name</th><th>Kontakt</th>" + (askPrior ? "<th>Vorkenntnisse</th>" : "") + "<th>Angemeldet</th><th>Bezahlt</th><th></th></tr>";
     table.appendChild(thead);
     var tbody = document.createElement("tbody");
 
@@ -472,6 +539,12 @@
       if (r.phone) contact.push(r.phone);
       tdContact.innerHTML = contact.map(escapeHtml).join("<br>");
       tr.appendChild(tdContact);
+
+      if (askPrior) {
+        var tdPrior = document.createElement("td");
+        tdPrior.textContent = r.prior_knowledge === true ? "Ja" : r.prior_knowledge === false ? "Nein" : "–";
+        tr.appendChild(tdPrior);
+      }
 
       var tdDate = document.createElement("td");
       tdDate.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString("de-DE") : "";

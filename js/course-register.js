@@ -11,7 +11,9 @@
 
   var activeCourse = null;
 
-  sb.from("courses").select("id,name,max_participants,signup_open").eq("status", "active").maybeSingle().then(function (res) {
+  var priorField = document.querySelector("[data-prior-field]");
+
+  sb.from("courses").select("id,name,max_participants,signup_open,ask_prior_knowledge").eq("status", "active").maybeSingle().then(function (res) {
     if (res.error) { console.error("Kurs laden:", res.error.message); }
     activeCourse = res.data || null;
     if (!activeCourse) {
@@ -30,6 +32,7 @@
       return;
     }
     if (nameOut) nameOut.textContent = activeCourse.name || "";
+    if (priorField && activeCourse.ask_prior_knowledge) priorField.style.display = "";
     checkCapacity();
   });
 
@@ -67,6 +70,16 @@
       var email = isEmail ? contact : null;
       var phone = isEmail ? null : contact;
 
+      var priorKnowledge = null;
+      if (activeCourse.ask_prior_knowledge) {
+        var checked = form.querySelector('input[name="prior_knowledge"]:checked');
+        if (!checked) {
+          if (errEl) errEl.textContent = "Bitte geben Sie an, ob Sie Vorkenntnisse haben.";
+          return;
+        }
+        priorKnowledge = checked.value === "yes";
+      }
+
       var btn = form.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.textContent = "Wird gesendet …";
@@ -77,6 +90,7 @@
           name: name,
           email: email || null,
           phone: phone || null,
+          prior_knowledge: priorKnowledge,
         });
         if (res.error) throw res.error;
         try { sessionStorage.setItem("course_signup_name", name); } catch (e) { /* ignorieren */ }

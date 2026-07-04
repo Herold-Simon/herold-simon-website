@@ -695,6 +695,18 @@
   /* ---------- Kurse: globale Einstellungen (Video + Werbetext) ---------- */
   var courseSettingsForm = qs("[data-course-settings-form]");
 
+  var siteQuizToggle = qs("[data-site-quiz-enabled]");
+  if (siteQuizToggle) {
+    siteQuizToggle.addEventListener("change", async function () {
+      var up = await sb.from("site_settings").upsert(
+        { key: "site_quiz_enabled", value: siteQuizToggle.checked, updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      );
+      if (up.error) { toast("Fehler: " + up.error.message, "error"); siteQuizToggle.checked = !siteQuizToggle.checked; return; }
+      toast(siteQuizToggle.checked ? "Website-Quiz aktiviert." : "Website-Quiz deaktiviert.", "success");
+    });
+  }
+
   function updateVideoFields() {
     if (!courseSettingsForm) return;
     var type = courseSettingsForm.video_type.value;
@@ -753,12 +765,13 @@
 
   async function loadCourseSettings() {
     if (!courseSettingsForm) return;
-    var res = await sb.from("site_settings").select("key,value").in("key", ["courses_video", "courses_promo_text", "show_courses_nav"]);
+    var res = await sb.from("site_settings").select("key,value").in("key", ["courses_video", "courses_promo_text", "show_courses_nav", "site_quiz_enabled"]);
     var map = {};
     (res.data || []).forEach(function (r) { map[r.key] = r.value; });
 
     // Standard: Button anzeigen, außer es ist ausdrücklich auf false gesetzt
     courseSettingsForm.show_courses_nav.checked = map.show_courses_nav !== false;
+    if (siteQuizToggle) siteQuizToggle.checked = map.site_quiz_enabled === true;
 
     var video = map.courses_video || {};
     courseSettingsForm.video_type.value = video.type === "file" ? "file" : "embed";

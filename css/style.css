@@ -1471,6 +1471,20 @@ body.page-donate #paypal-button-container > div + div {
 }
 
 /* Werbetext */
+.course-radio-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+.course-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.course-radio input { width: auto; margin: 0; }
+
 .course-signup-toggle {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2030,6 +2044,29 @@ body.page-donate #paypal-button-container > div + div {
 .quiz-done {
   text-align: center;
   padding: 2.5rem 1rem;
+}
+
+/* Website-Quiz auf der Kurse-Seite */
+.site-quiz { display: flex; flex-direction: column; gap: 1.4rem; max-width: 760px; margin: 0 auto; }
+.quiz-option.is-correct {
+  border-color: #2e7d5b;
+  background: #e5f5ec;
+}
+.quiz-option.is-correct span { font-weight: 800; color: #205c42; }
+.quiz-option.is-wrong {
+  border-color: #c0504d;
+  background: #fbe7e6;
+}
+.quiz-card.revealed .quiz-option { cursor: default; }
+.quiz-card.revealed .quiz-option:hover { background: none; }
+.quiz-card.revealed .quiz-option.is-correct:hover { background: #e5f5ec; border-color: #2e7d5b; }
+.quiz-card.revealed .quiz-option.is-wrong:hover { background: #fbe7e6; border-color: #c0504d; }
+.site-quiz-done {
+  text-align: center;
+  font-weight: 800;
+  color: var(--blue-dark);
+  margin-top: 1.6rem;
+  font-size: 1.15rem;
 }
 .quiz-done-icon {
   width: 4rem;

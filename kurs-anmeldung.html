@@ -57,6 +57,15 @@
             <input type="text" name="contact" autocomplete="email" required placeholder="z. B. name@mail.de oder 0170 1234567">
           </label>
           <p class="course-field-hint">Geben Sie eine E-Mail-Adresse oder eine Telefonnummer an, damit wir Sie erreichen können.</p>
+
+          <div class="course-field" data-prior-field style="display:none;">
+            <span>Haben Sie bereits Vorkenntnisse?</span>
+            <div class="course-radio-row">
+              <label class="course-radio"><input type="radio" name="prior_knowledge" value="yes"> Ja</label>
+              <label class="course-radio"><input type="radio" name="prior_knowledge" value="no"> Nein</label>
+            </div>
+          </div>
+
           <button type="submit" class="btn course-form-btn">Verbindlich anmelden</button>
           <p class="admin-error" data-signup-error></p>
         </form>

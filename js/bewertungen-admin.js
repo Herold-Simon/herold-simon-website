@@ -33,7 +33,7 @@
     adminView.style.display = "";
     if (logoutLink) logoutLink.style.display = "";
 
-    var cRes = await sb.from("courses").select("id,name,event_date").order("event_date", { ascending: false });
+    var cRes = await sb.from("courses").select("id,name,event_date").neq("status", "site_quiz").order("event_date", { ascending: false });
     courseList = cRes.data || [];
     courseList.forEach(function (c) {
       courseNames[c.id] = c.name;

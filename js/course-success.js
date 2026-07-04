@@ -45,6 +45,18 @@
     return d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
   }
 
+  function formatWhen(c) {
+    var mode = c.date_mode || "datetime";
+    if (mode === "range") {
+      var a = formatDate(c.event_date) + (c.event_time ? ", " + c.event_time + " Uhr" : "");
+      var b = formatDate(c.event_end_date) + (c.event_end_time ? ", " + c.event_end_time + " Uhr" : "");
+      if (a && b) return a + " – " + b;
+      return a || b;
+    }
+    if (mode === "date") return formatDate(c.event_date);
+    return formatDate(c.event_date) + (c.event_time ? ", " + c.event_time + " Uhr" : "");
+  }
+
   function row(label, value) {
     if (!value) return "";
     return '<li><span class="course-success-label">' + label + '</span><span class="course-success-value">' + value + "</span></li>";
@@ -98,9 +110,7 @@
 
     html += '<h2 class="course-success-name">' + (c.name || "Kurs") + "</h2>";
     html += '<ul class="course-success-list">';
-    var when = formatDate(c.event_date);
-    if (c.event_time) when += (when ? ", " : "") + c.event_time + " Uhr";
-    html += row("Wann", when);
+    html += row(c.date_mode === "range" ? "Zeitraum" : "Wann", formatWhen(c));
     html += row("Wo", addressHtml(c) || c.location);
     html += row("Preis", c.price);
     html += "</ul>";

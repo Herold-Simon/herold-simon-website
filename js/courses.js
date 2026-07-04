@@ -25,6 +25,18 @@
     return d.toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
   }
 
+  function formatWhen(c) {
+    var mode = c.date_mode || "datetime";
+    if (mode === "range") {
+      var a = formatDate(c.event_date) + (c.event_time ? ", " + c.event_time + " Uhr" : "");
+      var b = formatDate(c.event_end_date) + (c.event_end_time ? ", " + c.event_end_time + " Uhr" : "");
+      if (a && b) return a + " – " + b;
+      return a || b;
+    }
+    if (mode === "date") return formatDate(c.event_date);
+    return formatDate(c.event_date) + (c.event_time ? ", " + c.event_time + " Uhr" : "");
+  }
+
   // Wandelt eine Video-URL (YouTube/Vimeo) in eine Embed-URL um.
   function toEmbedUrl(url) {
     if (!url) return "";
@@ -165,7 +177,7 @@
 
     var meta = document.createElement("ul");
     meta.className = "course-meta";
-    if (course.event_date) meta.appendChild(metaItem("Datum", formatDate(course.event_date) + (course.event_time ? ", " + course.event_time + " Uhr" : "")));
+    if (course.event_date || course.event_end_date) meta.appendChild(metaItem(course.date_mode === "range" ? "Zeitraum" : "Datum", formatWhen(course)));
     var place = formatPlace(course);
     if (place) meta.appendChild(metaItem("Ort", place));
     if (course.price) meta.appendChild(metaItem("Preis", course.price));
@@ -298,10 +310,10 @@
       var h3 = document.createElement("h3");
       h3.textContent = course.name || "";
       info.appendChild(h3);
-      if (course.event_date) {
+      if (course.event_date || course.event_end_date) {
         var date = document.createElement("span");
         date.className = "past-course-date";
-        date.textContent = formatDate(course.event_date);
+        date.textContent = formatWhen(course);
         info.appendChild(date);
       }
       if (course.location) {
@@ -371,6 +383,125 @@
   }
 
   loadMarquee();
+
+  /* ---------- Website-Quiz ---------- */
+  var siteQuizSection = document.querySelector("[data-site-quiz-section]");
+  var siteQuizList = document.querySelector("[data-site-quiz-list]");
+  var siteQuizDone = document.querySelector("[data-site-quiz-done]");
+
+  function loadSiteQuiz() {
+    if (!siteQuizSection || !siteQuizList) return;
+    sb.rpc("get_site_quiz").then(function (res) {
+      if (res.error || !res.data || !res.data.enabled) return;
+      var questions = res.data.questions || [];
+      if (!questions.length) return;
+      renderSiteQuiz(questions);
+      siteQuizSection.style.display = "";
+    });
+  }
+
+  function renderSiteQuiz(questions) {
+    siteQuizList.innerHTML = "";
+    var answeredCount = 0;
+    questions.forEach(function (q, index) {
+      var card = document.createElement("div");
+      card.className = "quiz-card site-quiz-card";
+
+      var num = document.createElement("span");
+      num.className = "quiz-number";
+      num.textContent = "Frage " + (index + 1) + " / " + questions.length;
+      card.appendChild(num);
+
+      if (q.media_type && q.media_type !== "none" && q.media_url) {
+        card.appendChild(buildQuizMedia(q));
+      }
+
+      var qtext = document.createElement("h3");
+      qtext.className = "quiz-question-text";
+      qtext.textContent = q.question_text || "";
+      card.appendChild(qtext);
+
+      var answers = Array.isArray(q.answers) ? q.answers : [];
+      var multiple = answers.filter(function (a) { return a.correct; }).length > 1;
+      var optionsWrap = document.createElement("div");
+      optionsWrap.className = "quiz-options";
+      answers.forEach(function (a) {
+        var label = document.createElement("label");
+        label.className = "quiz-option";
+        var input = document.createElement("input");
+        input.type = multiple ? "checkbox" : "radio";
+        input.name = "sq_" + q.id;
+        input.value = a.id;
+        label.appendChild(input);
+        var span = document.createElement("span");
+        span.textContent = a.text || "";
+        label.appendChild(span);
+        label.setAttribute("data-answer-id", a.id);
+        optionsWrap.appendChild(label);
+      });
+      card.appendChild(optionsWrap);
+
+      var btn = document.createElement("button");
+      btn.className = "btn quiz-submit-btn";
+      btn.type = "button";
+      btn.textContent = "Antwort abgeben";
+      btn.addEventListener("click", function () {
+        var selected = Array.prototype.slice.call(optionsWrap.querySelectorAll("input:checked"))
+          .map(function (i) { return i.value; });
+        if (!selected.length) return;
+        btn.disabled = true;
+        sb.rpc("submit_quiz_answer", { p_question_id: q.id, p_selected: selected }).then(function () {
+          // Lösungen anzeigen
+          Array.prototype.slice.call(optionsWrap.querySelectorAll(".quiz-option")).forEach(function (lbl) {
+            var aid = lbl.getAttribute("data-answer-id");
+            var ans = answers.filter(function (a) { return a.id === aid; })[0];
+            var inp = lbl.querySelector("input");
+            var wasSelected = inp.checked;
+            inp.disabled = true;
+            if (ans && ans.correct) lbl.classList.add("is-correct");
+            else if (wasSelected) lbl.classList.add("is-wrong");
+          });
+          card.classList.add("revealed");
+          btn.style.display = "none";
+          answeredCount++;
+          if (answeredCount >= questions.length && siteQuizDone) siteQuizDone.hidden = false;
+        });
+      });
+      card.appendChild(btn);
+
+      siteQuizList.appendChild(card);
+    });
+  }
+
+  function buildQuizMedia(q) {
+    var wrap = document.createElement("div");
+    wrap.className = "quiz-media";
+    if (q.media_type === "image") {
+      var img = document.createElement("img");
+      img.src = window.SB.imgUrl(q.media_url);
+      img.alt = "";
+      img.loading = "lazy";
+      wrap.appendChild(img);
+    } else if (q.media_type === "video_file") {
+      var v = document.createElement("video");
+      v.src = window.SB.imgUrl(q.media_url);
+      v.controls = true;
+      v.preload = "metadata";
+      wrap.appendChild(v);
+    } else if (q.media_type === "video_embed") {
+      wrap.classList.add("is-embed");
+      var frame = document.createElement("iframe");
+      frame.src = toEmbedUrl(q.media_url);
+      frame.title = "Video zur Frage";
+      frame.loading = "lazy";
+      frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      frame.allowFullscreen = true;
+      wrap.appendChild(frame);
+    }
+    return wrap;
+  }
+
+  loadSiteQuiz();
 
   /* ---------- Lightbox ---------- */
   var lb = document.querySelector("[data-lightbox]");

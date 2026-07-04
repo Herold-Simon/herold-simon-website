@@ -60,13 +60,32 @@
                 <div id="course-desc-editor"></div>
               </div>
 
+              <fieldset class="admin-address">
+                <legend>Termin</legend>
+                <label>Art der Terminangabe
+                  <select name="date_mode" data-date-mode>
+                    <option value="datetime">Datum + Uhrzeit</option>
+                    <option value="date">Nur Datum</option>
+                    <option value="range">Zeitspanne (von – bis)</option>
+                  </select>
+                </label>
+                <div class="admin-form-grid" data-date-fields>
+                  <label data-df="start_date">Datum
+                    <input type="date" name="event_date">
+                  </label>
+                  <label data-df="start_time">Uhrzeit
+                    <input type="text" name="event_time" placeholder="z. B. 14:00">
+                  </label>
+                  <label data-df="end_date">Enddatum
+                    <input type="date" name="event_end_date">
+                  </label>
+                  <label data-df="end_time">Enduhrzeit
+                    <input type="text" name="event_end_time" placeholder="z. B. 17:00">
+                  </label>
+                </div>
+              </fieldset>
+
               <div class="admin-form-grid">
-                <label>Datum
-                  <input type="date" name="event_date">
-                </label>
-                <label>Uhrzeit
-                  <input type="text" name="event_time" placeholder="z. B. 14:00">
-                </label>
                 <label>Preis
                   <input type="text" name="price" placeholder="z. B. 120 €">
                 </label>
@@ -79,6 +98,12 @@
                 <input type="checkbox" name="signup_open" checked>
                 <span>Anmeldung geöffnet</span>
                 <small>Wenn deaktiviert, bleibt der Kurs aktiv (Quiz &amp; Bewertungen), erscheint auf der Kurse-Seite aber bei den vergangenen Kursen mit „Aktiv"-Markierung.</small>
+              </label>
+
+              <label class="course-signup-toggle">
+                <input type="checkbox" name="ask_prior_knowledge">
+                <span>Vorkenntnisse abfragen</span>
+                <small>Teilnehmer müssen bei der Anmeldung angeben, ob sie bereits Vorkenntnisse haben. Die Angabe erscheint in der Teilnehmertabelle.</small>
               </label>
 
               <fieldset class="admin-address">
