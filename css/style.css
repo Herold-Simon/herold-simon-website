@@ -1417,7 +1417,7 @@ body.page-donate #paypal-button-container > div + div {
 .courses-page {
   background: linear-gradient(180deg, var(--blue-light) 0%, #f7f9fc 100%);
 }
-.courses-block { margin: 3.5rem 0 0; }
+.courses-block { margin: 5.5rem 0 0; }
 .courses-page .container > .course-video-wrap { margin-top: 0.5rem; }
 
 /* Hero */
@@ -1471,7 +1471,7 @@ body.page-donate #paypal-button-container > div + div {
 /* Werbetext */
 .course-promo {
   max-width: 820px;
-  margin: 3rem auto 3.5rem;
+  margin: 4.5rem auto 1rem;
   padding: 2.4rem 2.6rem;
   background: var(--white);
   border-radius: var(--radius);
@@ -1486,7 +1486,8 @@ body.page-donate #paypal-button-container > div + div {
 .course-promo p:last-child { margin-bottom: 0; }
 
 @media (max-width: 600px) {
-  .course-promo { padding: 1.6rem 1.4rem; margin: 2rem auto 2.5rem; }
+  .course-promo { padding: 1.6rem 1.4rem; margin: 3rem auto 0.5rem; }
+  .courses-block { margin-top: 4rem; }
 }
 
 /* Aktiver Kurs */
