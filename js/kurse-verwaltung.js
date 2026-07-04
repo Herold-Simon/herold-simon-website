@@ -186,7 +186,7 @@
 
     if (c.status !== "past") {
       var past = document.createElement("button");
-      past.className = "btn btn-small btn-outline-danger";
+      past.className = "btn btn-small btn-danger";
       past.textContent = "Vergangen";
       past.addEventListener("click", function () { markPast(c, past); });
       btns.appendChild(past);
