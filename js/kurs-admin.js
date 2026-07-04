@@ -167,6 +167,8 @@
 
   async function initSiteQuiz() {
     applySiteQuizMode();
+    titleEl.textContent = "Website-Quiz";
+    statusLineEl.textContent = "Wird geladen …";
     var res = await sb.from("courses").select("*").eq("status", "site_quiz").order("created_at", { ascending: true }).limit(1);
     if (res.error) { toast("Fehler: " + res.error.message, "error"); return; }
     var course = (res.data || [])[0];
