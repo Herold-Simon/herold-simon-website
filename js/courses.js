@@ -275,7 +275,7 @@
       if (course._activeMarker) {
         var marker = document.createElement("span");
         marker.className = "past-course-active-badge";
-        marker.textContent = "Aktiv";
+        marker.textContent = "Aktiv, Anmeldung geschlossen";
         thumb.appendChild(marker);
       }
       if (images.length) {
