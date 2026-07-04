@@ -400,8 +400,32 @@
     });
   }
 
+  var SITE_QUIZ_STORE = "site_quiz_answered";
+  function getAnsweredSet() {
+    try { return JSON.parse(localStorage.getItem(SITE_QUIZ_STORE) || "{}") || {}; }
+    catch (e) { return {}; }
+  }
+  function markAnswered(qid) {
+    var s = getAnsweredSet();
+    s[qid] = true;
+    try { localStorage.setItem(SITE_QUIZ_STORE, JSON.stringify(s)); } catch (e) { /* ignorieren */ }
+  }
+
+  function revealSiteQuizAnswers(optionsWrap, answers) {
+    Array.prototype.slice.call(optionsWrap.querySelectorAll(".quiz-option")).forEach(function (lbl) {
+      var aid = lbl.getAttribute("data-answer-id");
+      var ans = answers.filter(function (a) { return a.id === aid; })[0];
+      var inp = lbl.querySelector("input");
+      var wasSelected = inp.checked;
+      inp.disabled = true;
+      if (ans && ans.correct) lbl.classList.add("is-correct");
+      else if (wasSelected) lbl.classList.add("is-wrong");
+    });
+  }
+
   function renderSiteQuiz(questions) {
     siteQuizList.innerHTML = "";
+    var answeredSet = getAnsweredSet();
     var answeredCount = 0;
     questions.forEach(function (q, index) {
       var card = document.createElement("div");
@@ -451,26 +475,28 @@
         if (!selected.length) return;
         btn.disabled = true;
         sb.rpc("submit_quiz_answer", { p_question_id: q.id, p_selected: selected }).then(function () {
-          // Lösungen anzeigen
-          Array.prototype.slice.call(optionsWrap.querySelectorAll(".quiz-option")).forEach(function (lbl) {
-            var aid = lbl.getAttribute("data-answer-id");
-            var ans = answers.filter(function (a) { return a.id === aid; })[0];
-            var inp = lbl.querySelector("input");
-            var wasSelected = inp.checked;
-            inp.disabled = true;
-            if (ans && ans.correct) lbl.classList.add("is-correct");
-            else if (wasSelected) lbl.classList.add("is-wrong");
-          });
+          revealSiteQuizAnswers(optionsWrap, answers);
           card.classList.add("revealed");
           btn.style.display = "none";
+          markAnswered(q.id);
           answeredCount++;
           if (answeredCount >= questions.length && siteQuizDone) siteQuizDone.hidden = false;
         });
       });
       card.appendChild(btn);
 
+      // Bereits auf diesem Gerät beantwortet: nur Lösungen anzeigen (kein erneutes Absenden)
+      if (answeredSet[q.id]) {
+        revealSiteQuizAnswers(optionsWrap, answers);
+        card.classList.add("revealed");
+        btn.style.display = "none";
+        answeredCount++;
+      }
+
       siteQuizList.appendChild(card);
     });
+
+    if (answeredCount >= questions.length && siteQuizDone) siteQuizDone.hidden = false;
   }
 
   function buildQuizMedia(q) {
