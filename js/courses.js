@@ -105,12 +105,8 @@
         var closedActive = active && active.signup_open === false ? active : null;
 
         var activeSection = activeEl.closest ? activeEl.closest(".courses-block") : null;
-        if (closedActive && !openActive) {
-          if (activeSection) activeSection.style.display = "none";
-        } else {
-          if (activeSection) activeSection.style.display = "";
-          renderActive(openActive, byCourse);
-        }
+        if (activeSection) activeSection.style.display = "";
+        renderActive(openActive, byCourse);
 
         var pastDisplay = past.slice();
         if (closedActive) {
@@ -128,7 +124,7 @@
     if (!course) {
       var info = document.createElement("p");
       info.className = "course-empty";
-      info.textContent = "Zurzeit ist kein Kurs aktiv. Schauen Sie bald wieder vorbei!";
+      info.textContent = "Aktuell gibt es keine Kurse zum Anmelden.";
       activeEl.appendChild(info);
       return;
     }
