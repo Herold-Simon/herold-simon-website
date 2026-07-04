@@ -317,7 +317,7 @@
         if (r.error) return;
         var reviews = (r.data || []).filter(function (rv) {
           if (rv.show_in_marquee) return true;
-          return rv.stars === 5 && rv.text && wordCount(rv.text) < 10;
+          return rv.stars === 5 && rv.text && wordCount(rv.text) < 15;
         });
         if (!reviews.length) return;
 

@@ -16,6 +16,12 @@
   var activeCourse = null;
   var questions = [];
 
+  function wordCount(t) {
+    var s = (t || "").trim();
+    if (!s) return 0;
+    return s.split(/\s+/).length;
+  }
+
   sb.from("courses").select("id,name").eq("status", "active").maybeSingle().then(function (res) {
     activeCourse = res.data || null;
     if (!activeCourse) {
@@ -132,14 +138,15 @@
         var starsWrap = block.querySelector(".review-stars-input");
         var stars = starsWrap ? parseInt(starsWrap.getAttribute("data-stars"), 10) || 0 : 0;
         if (text || stars) {
+          var autoShow = stars === 5 && !!text && wordCount(text) < 15;
           rows.push({
             course_id: activeCourse.id,
             question_id: qid,
             author_name: authorName,
             text: text || null,
             stars: stars || null,
-            show_on_page: false,
-            show_in_marquee: false,
+            show_on_page: autoShow,
+            show_in_marquee: autoShow,
           });
         }
       });
