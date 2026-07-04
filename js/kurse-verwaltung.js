@@ -146,6 +146,28 @@
     statusRow.appendChild(sw);
     actionRow.appendChild(statusRow);
 
+    // Anmeldung offen/geschlossen (nur bei aktiven Kursen sinnvoll)
+    if (c.status === "active") {
+      var signupRow = document.createElement("div");
+      signupRow.className = "course-card-status-row";
+      var ssw = document.createElement("label");
+      ssw.className = "switch";
+      var scb = document.createElement("input");
+      scb.type = "checkbox";
+      scb.checked = c.signup_open !== false;
+      scb.addEventListener("change", function () { toggleSignup(c, scb); });
+      ssw.appendChild(scb);
+      var sslider = document.createElement("span");
+      sslider.className = "switch-slider";
+      ssw.appendChild(sslider);
+      var sswText = document.createElement("span");
+      sswText.className = "switch-label";
+      sswText.textContent = c.signup_open !== false ? "Anmeldung offen" : "Anmeldung geschlossen";
+      ssw.appendChild(sswText);
+      signupRow.appendChild(ssw);
+      actionRow.appendChild(signupRow);
+    }
+
     // Button-Raster
     var btns = document.createElement("div");
     btns.className = "course-card-btns";
@@ -157,15 +179,15 @@
     btns.appendChild(edit);
 
     var dup = document.createElement("button");
-    dup.className = "btn btn-small btn-outline";
+    dup.className = "btn btn-small";
     dup.textContent = "Duplizieren";
     dup.addEventListener("click", function () { duplicateCourse(c, dup); });
     btns.appendChild(dup);
 
     if (c.status !== "past") {
       var past = document.createElement("button");
-      past.className = "btn btn-small btn-outline";
-      past.textContent = "Als vergangen";
+      past.className = "btn btn-small btn-outline-danger";
+      past.textContent = "Vergangen";
       past.addEventListener("click", function () { markPast(c, past); });
       btns.appendChild(past);
     }
@@ -203,6 +225,19 @@
     }
   }
 
+  async function toggleSignup(c, cb) {
+    try {
+      var res = await sb.from("courses").update({ signup_open: cb.checked, updated_at: new Date().toISOString() }).eq("id", c.id);
+      if (res.error) throw res.error;
+      c.signup_open = cb.checked;
+      toast(cb.checked ? "Anmeldung geöffnet." : "Anmeldung geschlossen.", "success");
+      loadCourses();
+    } catch (ex) {
+      toast("Fehler: " + (ex.message || ex), "error");
+      cb.checked = !cb.checked;
+    }
+  }
+
   /* ---------- Kurs als vergangen markieren ---------- */
   async function deleteQuizMedia(cId) {
     var res = await sb.from("quiz_questions").select("id,media_type,media_url").eq("course_id", cId);
@@ -231,7 +266,7 @@
       toast("Kurs als vergangen markiert.", "success");
     } catch (ex) {
       toast("Fehler: " + (ex.message || ex), "error");
-      if (btn) { btn.disabled = false; btn.textContent = "Als vergangen"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Vergangen"; }
     }
   }
 

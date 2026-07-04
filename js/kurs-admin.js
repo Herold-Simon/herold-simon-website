@@ -204,6 +204,7 @@
     courseForm.address_city.value = c.address_city || "";
     courseForm.price.value = c.price || "";
     courseForm.max_participants.value = c.max_participants != null ? c.max_participants : "";
+    if (courseForm.signup_open) courseForm.signup_open.checked = c.signup_open !== false;
     courseForm.bank_recipient.value = c.bank_recipient || "";
     courseForm.iban.value = c.iban || "";
     courseForm.payment_reference.value = c.payment_reference || "";
@@ -235,6 +236,7 @@
       address_city: courseForm.address_city.value.trim() || null,
       price: courseForm.price.value.trim() || null,
       max_participants: courseForm.max_participants.value ? parseInt(courseForm.max_participants.value, 10) : null,
+      signup_open: courseForm.signup_open ? courseForm.signup_open.checked : true,
       bank_recipient: courseForm.bank_recipient.value.trim() || null,
       iban: courseForm.iban.value.trim() || null,
       payment_reference: courseForm.payment_reference.value.trim() || null,

@@ -11,13 +11,22 @@
 
   var activeCourse = null;
 
-  sb.from("courses").select("id,name,max_participants").eq("status", "active").maybeSingle().then(function (res) {
+  sb.from("courses").select("id,name,max_participants,signup_open").eq("status", "active").maybeSingle().then(function (res) {
     if (res.error) { console.error("Kurs laden:", res.error.message); }
     activeCourse = res.data || null;
     if (!activeCourse) {
       if (signupCard) signupCard.style.display = "none";
       if (noCourse) noCourse.style.display = "";
       if (nameOut) nameOut.style.display = "none";
+      return;
+    }
+    if (activeCourse.signup_open === false) {
+      if (signupCard) signupCard.style.display = "none";
+      if (nameOut) nameOut.style.display = "none";
+      if (noCourse) {
+        noCourse.style.display = "";
+        noCourse.innerHTML = "<p>Die Anmeldung für diesen Kurs ist <strong>bereits geschlossen</strong>. Bitte schauen Sie später wieder auf der <a href=\"kurse.html\">Kurse-Seite</a> vorbei.</p>";
+      }
       return;
     }
     if (nameOut) nameOut.textContent = activeCourse.name || "";

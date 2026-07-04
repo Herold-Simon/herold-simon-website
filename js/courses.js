@@ -100,8 +100,24 @@
         (imgRes.data || []).forEach(function (img) {
           (byCourse[img.course_id] = byCourse[img.course_id] || []).push(img.image_url);
         });
-        renderActive(active, byCourse);
-        renderPast(past, byCourse);
+
+        var openActive = active && active.signup_open !== false ? active : null;
+        var closedActive = active && active.signup_open === false ? active : null;
+
+        var activeSection = activeEl.closest ? activeEl.closest(".courses-block") : null;
+        if (closedActive && !openActive) {
+          if (activeSection) activeSection.style.display = "none";
+        } else {
+          if (activeSection) activeSection.style.display = "";
+          renderActive(openActive, byCourse);
+        }
+
+        var pastDisplay = past.slice();
+        if (closedActive) {
+          closedActive._activeMarker = true;
+          pastDisplay.unshift(closedActive);
+        }
+        renderPast(pastDisplay, byCourse);
       });
   });
 
@@ -252,10 +268,16 @@
     courses.forEach(function (course) {
       var images = imagesByCourse[course.id] || [];
       var card = document.createElement("div");
-      card.className = "past-course-card";
+      card.className = "past-course-card" + (course._activeMarker ? " is-active" : "");
 
       var thumb = document.createElement("div");
       thumb.className = "past-course-thumb";
+      if (course._activeMarker) {
+        var marker = document.createElement("span");
+        marker.className = "past-course-active-badge";
+        marker.textContent = "Aktiv";
+        thumb.appendChild(marker);
+      }
       if (images.length) {
         var im = document.createElement("img");
         im.src = window.SB.imgUrl(images[0]);
