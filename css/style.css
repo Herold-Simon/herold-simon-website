@@ -2408,6 +2408,7 @@ body.page-donate #paypal-button-container > div + div {
 }
 
 .review-card {
+  background: linear-gradient(150deg, var(--blue) 0%, var(--blue-dark) 100%);
   color: var(--white);
   border-radius: 18px;
   box-shadow: var(--shadow);
@@ -2415,10 +2416,6 @@ body.page-donate #paypal-button-container > div + div {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  border: 3px solid transparent;
-  background:
-    linear-gradient(150deg, var(--blue) 0%, var(--blue-dark) 100%) padding-box,
-    linear-gradient(135deg, #f9e79f 0%, #e6bd52 40%, #c8962f 70%, #f3d987 100%) border-box;
 }
 .review-marquee .review-card { flex: 0 0 360px; }
 .review-stars {
