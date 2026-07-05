@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kurse – Dr. Herold &amp; Dr. Simon</title>
-  <meta name="description" content="Kurse der Tierärztlichen Gemeinschaftspraxis für Pferde Dr. Herold & Dr. Simon – jetzt anmelden und mitmachen.">
+  <title>Wissensquiz – Dr. Herold &amp; Dr. Simon</title>
+  <meta name="description" content="Testen Sie Ihr Wissen im Quiz der Tierärztlichen Gemeinschaftspraxis Dr. Herold & Dr. Simon.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -13,7 +13,6 @@
 </head>
 <body>
 
-  <!-- ======================= Header ======================= -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo-link" href="index.html">
@@ -42,49 +41,19 @@
     </div>
   </header>
 
-  <main class="section courses-page">
+  <main class="section">
     <div class="container">
       <header class="courses-hero">
-        <h1>Unsere Kurse</h1>
+        <h1>Testen Sie Ihr Wissen</h1>
       </header>
 
-      <!-- Werbevideo -->
-      <div class="course-video-wrap" data-course-video></div>
-
-      <!-- Werbetext -->
-      <div class="course-promo prose" data-course-promo></div>
-
-      <!-- Bewertungs-Laufband (ab Phase 3 befüllt) -->
-      <section class="courses-block course-reviews-marquee" data-review-marquee-section style="display:none;">
-        <h2 class="section-title">Das sagen Teilnehmer</h2>
-        <div class="review-marquee" data-review-marquee>
-          <div class="review-track" data-review-track></div>
-        </div>
-        <div class="course-reviews-action">
-          <a class="btn btn-outline" href="bewertungen.html">Alle Bewertungen ansehen</a>
-        </div>
-      </section>
-
-      <!-- Aktueller Kurs -->
-      <section class="courses-block">
-        <h2 class="section-title">Aktueller Kurs</h2>
-        <div class="course-active-section" data-active-course></div>
-      </section>
-
-      <!-- Vergangene Kurse -->
-      <section class="courses-block past-courses-section" data-past-courses></section>
+      <div class="site-quiz" data-site-quiz-list>
+        <p class="course-empty" data-site-quiz-empty>Wird geladen …</p>
+      </div>
+      <p class="site-quiz-done" data-site-quiz-done hidden>Geschafft! Die richtigen Antworten sind oben markiert.</p>
     </div>
   </main>
 
-  <!-- Lightbox für Kursbilder -->
-  <div class="course-lightbox" data-lightbox hidden>
-    <button class="course-lightbox-close" type="button" data-lightbox-close aria-label="Schließen">&times;</button>
-    <button class="course-lightbox-nav prev" type="button" data-lightbox-prev aria-label="Vorheriges Bild">&#10094;</button>
-    <img data-lightbox-img alt="">
-    <button class="course-lightbox-nav next" type="button" data-lightbox-next aria-label="Nächstes Bild">&#10095;</button>
-  </div>
-
-  <!-- ======================= Footer ======================= -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <address class="footer-address">
@@ -101,6 +70,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/courses.js"></script>
+  <script src="js/site-quiz.js"></script>
 </body>
 </html>

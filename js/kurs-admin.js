@@ -157,10 +157,6 @@
       var s = document.querySelector('[data-view="' + v + '"]');
       if (s) s.hidden = true;
     });
-    var qr = document.querySelector("[data-quiz-qr]");
-    if (qr) qr.style.display = "none";
-    var qrHint = document.querySelector("[data-quiz-qrhint]");
-    if (qrHint) qrHint.textContent = "";
     var back = document.querySelector('.admin-header .main-nav a[href="kurse-verwaltung.html"]');
     if (back) { back.textContent = "\u2190 Übersicht"; back.setAttribute("href", "admin.html"); }
   }
@@ -975,10 +971,12 @@
   var quizQrBtn = document.querySelector("[data-quiz-qr]");
   var quizQrHint = document.querySelector("[data-quiz-qrhint]");
   if (quizQrBtn) {
-    var quizUrl = window.location.origin + "/quiz";
-    if (quizQrHint) quizQrHint.textContent = "QR-Code verweist auf: " + quizUrl + " (zeigt immer das Quiz des aktiven Kurses).";
+    var quizUrl = siteQuizMode ? (window.location.origin + "/wissensquiz") : (window.location.origin + "/quiz");
+    if (quizQrHint) quizQrHint.textContent = siteQuizMode
+      ? ("QR-Code verweist auf: " + quizUrl + " (Wissensquiz-Seite).")
+      : ("QR-Code verweist auf: " + quizUrl + " (zeigt immer das Quiz des aktiven Kurses).");
     quizQrBtn.addEventListener("click", function () {
-      downloadQr(quizUrl, "quiz-qr-code.png");
+      downloadQr(quizUrl, siteQuizMode ? "wissensquiz-qr-code.png" : "quiz-qr-code.png");
     });
   }
 

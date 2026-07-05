@@ -8,6 +8,7 @@
     { "source": "/kurse-verwaltung", "destination": "/kurse-verwaltung.html" },
     { "source": "/bewertungen-admin", "destination": "/bewertungen-admin.html" },
     { "source": "/quiz", "destination": "/quiz.html" },
+    { "source": "/wissensquiz", "destination": "/wissensquiz.html" },
     { "source": "/bewerten", "destination": "/bewerten.html" },
     { "source": "/bewertungen", "destination": "/bewertungen.html" },
     { "source": "/danke-f:mid(.*)r-die-spende", "destination": "/danke-fuer-die-spende.html" },
