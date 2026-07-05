@@ -12,6 +12,8 @@
   var bodyEl = document.querySelector("[data-review-body]");
   var confirmNameBtn = document.querySelector("[data-review-confirm-name]");
   var editNameBtn = document.querySelector("[data-review-edit-name]");
+  var anonCheck = document.querySelector("[data-review-anon]");
+  var ANON_NAME = "Anonymer Teilnehmer";
 
   var activeCourse = null;
   var questions = [];
@@ -105,16 +107,27 @@
     return wrap;
   }
 
+  if (anonCheck) {
+    anonCheck.addEventListener("change", function () {
+      if (errEl) errEl.textContent = "";
+      form.author_name.disabled = anonCheck.checked;
+      form.author_name.required = !anonCheck.checked;
+      if (anonCheck.checked) form.author_name.value = "";
+    });
+  }
+
   if (confirmNameBtn) {
     confirmNameBtn.addEventListener("click", function () {
       if (errEl) errEl.textContent = "";
+      var isAnon = anonCheck && anonCheck.checked;
       var name = form.author_name.value.trim();
-      if (!name) {
-        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein.";
+      if (!isAnon && !name) {
+        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein oder wählen Sie „anonym“.";
         form.author_name.focus();
         return;
       }
       form.author_name.readOnly = true;
+      if (anonCheck) anonCheck.disabled = true;
       confirmNameBtn.style.display = "none";
       if (bodyEl) bodyEl.style.display = "";
     });
@@ -123,7 +136,8 @@
   if (editNameBtn) {
     editNameBtn.addEventListener("click", function () {
       form.author_name.readOnly = false;
-      form.author_name.focus();
+      if (anonCheck) anonCheck.disabled = false;
+      if (!(anonCheck && anonCheck.checked)) form.author_name.focus();
       if (bodyEl) bodyEl.style.display = "none";
       if (confirmNameBtn) confirmNameBtn.style.display = "";
     });
@@ -135,9 +149,10 @@
       if (errEl) errEl.textContent = "";
       if (!activeCourse) return;
 
-      var authorName = form.author_name.value.trim();
+      var isAnon = anonCheck && anonCheck.checked;
+      var authorName = isAnon ? ANON_NAME : form.author_name.value.trim();
       if (!authorName) {
-        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein.";
+        if (errEl) errEl.textContent = "Bitte geben Sie Ihren Namen ein oder wählen Sie „anonym“.";
         return;
       }
       var rows = [];

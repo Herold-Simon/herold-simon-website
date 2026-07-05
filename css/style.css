@@ -1795,6 +1795,21 @@ body.page-donate #paypal-button-container > div + div {
 .course-field input:focus { border-color: var(--blue); }
 .course-field-hint { font-size: 0.85rem; color: var(--grey); margin-bottom: 1.2rem; }
 .course-form-btn { width: 100%; font-size: 1.05rem; }
+.review-anon-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.2rem 0 1.2rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.review-anon-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.course-field input:disabled { background: #f0f2f5; color: var(--grey); cursor: not-allowed; }
 
 /* Erfolgsseite */
 .course-success-wrap { max-width: 620px; text-align: center; }
